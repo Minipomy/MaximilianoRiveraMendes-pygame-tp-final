@@ -1,10 +1,11 @@
+import sys
 from tkinter import font
 import pygame as pg
 import json as js
 from Enemy import Enemy
 from Player import Player
 from Buttons import Buttons
-from constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, CAPTION, BACKGROUND_COLOR, FONT
+from constants import *
 
 class Game():
     def __init__(self, json_file):
@@ -36,65 +37,60 @@ class Game():
     #     if self.time_start <= 0:
     #         self.finished = True
 
-    def main_menu(self, screen):
+    def main_menu(self):
         while True:
-            screen.fill((0,0,0))
+            self.screen.fill((0,0,0))
             MENU_MOUSE_POS = pg.mouse.get_pos()
             MENU_TEXT = self.font.render("MAIN MENU", True, "#b68f40")
             MENU_RECT = MENU_TEXT.get_rect(center=(640, 100))
-            PLAY_BUTTON = Buttons(image=pg.image.load("Recursos/Menu/Buttons/Play.png"), pos=(640, 250), 
-                                text_input="PLAY", font=self.font, base_color="#d7fcd4", hovering_color="White")
-            OPTIONS_BUTTON = Buttons(image=pg.image.load("Recursos/Menu/Buttons/Settings.png"), pos=(640, 400), 
-                                text_input="OPTIONS", font=self.font, base_color="#d7fcd4", hovering_color="White")
-            QUIT_BUTTON = Buttons(image=pg.image.load("Recursos/Menu/Buttons/Close.png"), pos=(640, 550), 
-                                text_input="QUIT", font=self.font, base_color="#d7fcd4", hovering_color="White")
-            screen.blit(MENU_TEXT, MENU_RECT)
+            PLAY_BUTTON = Buttons(pos=(640, 250), text_input=PLAY_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
+            OPTIONS_BUTTON = Buttons(pos=(640, 400), text_input=OPTIONS_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
+            QUIT_BUTTON = Buttons(pos=(640, 550), text_input=CLOSE_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
+            self.screen.blit(MENU_TEXT, MENU_RECT)
             for button in [PLAY_BUTTON, OPTIONS_BUTTON, QUIT_BUTTON]:
                 button.changeColor(MENU_MOUSE_POS)
-                button.update(screen)
+                button.update(self.screen)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     pg.quit()
                 if event.type == pg.MOUSEBUTTONDOWN:
                     if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
-                        self.play()
+                        self.run()
                     if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
                         self.options()
                     if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
                         pg.quit()
+                        sys.exit()
             pg.display.update()
 
-    def pause(self, screen):
+    def pause(self):
         while True:
-            screen.fill((0,0,0))
-            self.draw_text('pause menu', self.font, (255, 255, 255), screen, 20, 20)
+            self.screen.fill((0,0,0))
+            self.draw_text('pause menu', self.font, (255, 255, 255), self.screen, 20, 20)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     pg.quit()
             pg.display.update()
 
-    def play(self):
-        self.run()
-
-    def options(self, screen):
+    def options(self):
         while True:
-            screen.fill((0,0,0))
-            self.draw_text('option menu', self.font, (255, 255, 255), screen, 20, 20)
+            self.screen.fill((0,0,0))
+            self.draw_text('option menu', self.font, (255, 255, 255), self.screen, 20, 20)
 
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     pg.quit()
             pg.display.update()
 
-    def draw_text(self, text, font, color, screen, x, y):
-        textobj = font.render(text, 1, color)
+    def draw_text(self, text, color, screen, x, y):
+        textobj = self.font.render(text, 1, color)
         textrect = textobj.get_rect()
         textrect.topleft = (x, y)
         screen.blit(textobj, textrect)
     
     def run(self):
         while True:
-            self.draw_text('main menu', self.font, (255, 255, 255), self.screen, 20, 20)
+            self.draw_text('main menu', (255, 255, 255), self.screen, 20, 20)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     pg.quit()
