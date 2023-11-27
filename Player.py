@@ -84,6 +84,7 @@ class Player(pg.sprite.Sprite):
         if keys[pg.K_SPACE]:
             self.jump(True)
 
+
         self.__player_move_time += delta_ms
         if self.__player_move_time >= self.__frame_rate:
             self.__player_move_time = 0

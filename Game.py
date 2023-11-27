@@ -53,6 +53,7 @@ class Game():
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     pg.quit()
+                    sys.exit()
                 if event.type == pg.MOUSEBUTTONDOWN:
                     if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
                         self.run()
@@ -63,20 +64,23 @@ class Game():
                         sys.exit()
             pg.display.update()
 
-    def pause(self):
-        while True:
+    def set_pause(self, pause):
+        while pause:
             self.screen.fill((0,0,0))
-            self.draw_text('pause menu', self.font, (255, 255, 255), self.screen, 20, 20)
+            self.draw_text('pause menu',(255, 255, 255), self.screen, 20, 20)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     pg.quit()
-            pg.display.update()
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_p:
+                        pause = False
+            pg.display.flip()
+            
 
     def options(self):
         while True:
             self.screen.fill((0,0,0))
-            self.draw_text('option menu', self.font, (255, 255, 255), self.screen, 20, 20)
-
+            self.draw_text('option menu',(255, 255, 255), self.screen, 20, 20)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     pg.quit()
@@ -90,11 +94,13 @@ class Game():
     
     def run(self):
         while True:
-            self.draw_text('main menu', (255, 255, 255), self.screen, 20, 20)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     pg.quit()
-            
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_p:
+                        self.set_pause(True)
+                
             self.screen.fill(BACKGROUND_COLOR)
             player = self.player
             enemy = self.enemy
@@ -103,5 +109,4 @@ class Game():
             enemy.update(self.delta_ms)
             enemy.draw(self.screen)
             pg.display.flip()
-
-            self.clock.tick(60)  # Limita el juego a 60 FPS
+            self.clock.tick(100)  # Limita el juego a 60 FPS
