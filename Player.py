@@ -1,18 +1,19 @@
 import pygame as pg
 from auxiliar import SurfaceManager as sf
-from constants import *
+from constants import SCREEN_WIDTH, DEBUG
 
-class Player:
-    def __init__(self, coord_x=0, coord_y=0, frame_rate = 60, speed_run = 10, gravity = 16, jump = 32):
-        self.__iddle_r = sf.get_surface_from_spritesheet('Recursos/Main Characters/Virtual Guy/Idle (32x32).png', 11, 1)
-        self.__iddle_l = sf.get_surface_from_spritesheet('Recursos/Main Characters/Virtual Guy/Idle (32x32).png', 11, 1, flip=True)
-        self.__run_r = sf.get_surface_from_spritesheet('Recursos/Main Characters/Virtual Guy/Run (32x32).png', 2, 1)
-        self.__run_l = sf.get_surface_from_spritesheet('Recursos/Main Characters/Virtual Guy/Run (32x32).png', 2, 1, flip=True)
-        self.__jump_r = sf.get_surface_from_spritesheet('Recursos/Main Characters/Virtual Guy/jump (32x32).png', 6, 1)
-        self.__jump_l = sf.get_surface_from_spritesheet('Recursos/Main Characters/Virtual Guy/jump (32x32).png', 6, 1, flip=True)
-        self.__move_x = coord_x
-        self.__move_y = coord_y
-        self.__speed_run = speed_run 
+class Player(pg.sprite.Sprite):
+    def __init__(self, player_data, frame_rate = 60, speed_run = 12, gravity = 16, jump = 32):
+        super().__init__()
+        self.__iddle_r = sf.get_surface_from_spritesheet(player_data.get("idle"), 11, 1)
+        self.__iddle_l = sf.get_surface_from_spritesheet(player_data.get("idle"), 11, 1, flip=True)
+        self.__run_r = sf.get_surface_from_spritesheet(player_data.get("run"), 12, 1)
+        self.__run_l = sf.get_surface_from_spritesheet(player_data.get("run"), 12, 1, flip=True)
+        self.__jump_r = sf.get_surface_from_spritesheet(player_data.get("jump"), 1, 1)
+        self.__jump_l = sf.get_surface_from_spritesheet(player_data.get("jump"), 1, 1, flip=True)
+        self.__move_x = player_data.get("coord_x")
+        self.__move_y = player_data.get("coord_y")
+        self.__speed_run = speed_run
         self.__frame_rate = frame_rate
         self.__player_move_time = 0
         self.__player_animation_time = 0
@@ -38,15 +39,6 @@ class Player:
         self.__actual_animation = self.__jump_r if self.__is_looking_right else self.__jump_l
         self.__initial_frame = 0
         self.__is_jumping = True
-    
-    # def walk(self, direction: str = 'Right'):
-    #     match direction:
-    #         case 'Right':
-    #             look_right = True
-    #             self.__set_x_animations_preset(self.__speed_walk, self.__walk_r, look_r=look_right)
-    #         case 'Left':
-    #             look_right = False
-    #             self.__set_x_animations_preset(-self.__speed_walk, self.__walk_l, look_r=look_right)
     
     def run(self, direction: str = 'Right'):
         self.__initial_frame = 0
@@ -82,6 +74,14 @@ class Player:
 
 
     def do_movement(self, delta_ms):
+        keys = pg.key.get_pressed()
+        if keys[pg.K_RIGHT] and not keys[pg.K_LEFT]:
+            self.run('Right')
+        if keys[pg.K_LEFT] and not keys[pg.K_RIGHT]:
+            self.run('Left')
+        if not keys[pg.K_RIGHT] and not keys[pg.K_LEFT]:
+            self.stay()
+
         self.__player_move_time += delta_ms
         if self.__player_move_time >= self.__frame_rate:
             self.__player_move_time = 0
@@ -90,6 +90,8 @@ class Player:
             # Parte relacionado a saltar
             if self.__rect.y < 300:
                 self.__rect.y += self.__gravity
+        print(self.__rect.x)
+        # print(self.__move_x)
 
     def do_animation(self, delta_ms):
         self.__player_animation_time += delta_ms
@@ -106,10 +108,11 @@ class Player:
     def update(self, delta_ms):
         self.do_movement(delta_ms)
         self.do_animation(delta_ms)
+        
     
     def draw(self, screen: pg.surface.Surface):
         if DEBUG:
             pg.draw.rect(screen, 'red', self.__rect)
-            #pg.draw.rect(screen, 'green', self.__rect.bottom)
+            # pg.draw.rect(screen, 'green', self.__rect.bottom)
         self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
         screen.blit(self.__actual_img_animation, self.__rect)

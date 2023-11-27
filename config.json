@@ -1,0 +1,9 @@
+{
+    "player":{
+        "idle": "Recursos/Main Characters/Virtual Guy/Idle (32x32).png"
+,       "run": "Recursos/Main Characters/Virtual Guy/Run (32x32).png",
+        "jump": "Recursos/Main Characters/Virtual Guy/jump (32x32).png",
+        "coord_x": 150,
+        "coord_y": 150
+    }
+}
