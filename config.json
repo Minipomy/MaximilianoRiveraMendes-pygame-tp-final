@@ -1,9 +1,15 @@
 {
-    "player":{
+    "player": {
         "idle": "Recursos/Main Characters/Virtual Guy/Idle (32x32).png"
 ,       "run": "Recursos/Main Characters/Virtual Guy/Run (32x32).png",
         "jump": "Recursos/Main Characters/Virtual Guy/jump (32x32).png",
-        "coord_x": 150,
-        "coord_y": 150
+        "coord_x": 0,
+        "coord_y": 0
+    },
+    "enemy": {
+        "idle": "Recursos/Enemies/AngryPig/Idle (36x30).png"
+,       "run": "Recursos/Enemies/AngryPig/Walk (36x30).png",
+        "coord_x": 0,
+        "coord_y": 0
     }
 }

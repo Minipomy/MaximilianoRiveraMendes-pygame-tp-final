@@ -3,6 +3,7 @@
 DEBUG = True
 
 ##################### DISPLAY CONFIGS #####################
+DATA = "config.json"
 CAPTION = "Meme Game"
 SCREEN_WIDTH = 1366
 SCREEN_HEIGHT = 720

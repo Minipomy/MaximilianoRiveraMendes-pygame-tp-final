@@ -2,23 +2,20 @@ import pygame as pg
 from auxiliar import SurfaceManager as sf
 from constants import SCREEN_WIDTH, DEBUG
 
-class Player(pg.sprite.Sprite):
-    def __init__(self, player_data, frame_rate = 60, speed_run = 12, gravity = 16, jump = 32):
+class Enemy(pg.sprite.Sprite):
+    def __init__(self, enemy_data, frame_rate = 60, speed_run = 12, gravity=16):
         super().__init__()
-        self.__iddle_r = sf.get_surface_from_spritesheet(player_data.get("idle"), 11, 1)
-        self.__iddle_l = sf.get_surface_from_spritesheet(player_data.get("idle"), 11, 1, flip=True)
-        self.__run_r = sf.get_surface_from_spritesheet(player_data.get("run"), 12, 1)
-        self.__run_l = sf.get_surface_from_spritesheet(player_data.get("run"), 12, 1, flip=True)
-        self.__jump_r = sf.get_surface_from_spritesheet(player_data.get("jump"), 1, 1)
-        self.__jump_l = sf.get_surface_from_spritesheet(player_data.get("jump"), 1, 1, flip=True)
-        self.__move_x = player_data.get("coord_x")
-        self.__move_y = player_data.get("coord_y")
+        self.__iddle_r = sf.get_surface_from_spritesheet(enemy_data.get("idle"), 9, 1)
+        self.__iddle_l = sf.get_surface_from_spritesheet(enemy_data.get("idle"), 9, 1, flip=True)
+        self.__run_r = sf.get_surface_from_spritesheet(enemy_data.get("run"), 16, 1)
+        self.__run_l = sf.get_surface_from_spritesheet(enemy_data.get("run"), 16, 1, flip=True)
+        self.__move_x = enemy_data.get("coord_x")
+        self.__move_y = enemy_data.get("coord_y")
         self.__speed_run = speed_run
         self.__frame_rate = frame_rate
         self.__player_move_time = 0
         self.__player_animation_time = 0
         self.__gravity = gravity
-        self.__jump = jump
         self.__is_jumping = False
         self.__initial_frame = 0
         self.__actual_animation = self.__iddle_r
@@ -74,16 +71,6 @@ class Player(pg.sprite.Sprite):
 
 
     def do_movement(self, delta_ms):
-        keys = pg.key.get_pressed()
-        if keys[pg.K_RIGHT] and not keys[pg.K_LEFT]:
-            self.run('Right')
-        if keys[pg.K_LEFT] and not keys[pg.K_RIGHT]:
-            self.run('Left')
-        if not keys[pg.K_RIGHT] and not keys[pg.K_LEFT]:
-            self.stay()
-        if keys[pg.K_SPACE]:
-            self.jump(True)
-
         self.__player_move_time += delta_ms
         if self.__player_move_time >= self.__frame_rate:
             self.__player_move_time = 0
