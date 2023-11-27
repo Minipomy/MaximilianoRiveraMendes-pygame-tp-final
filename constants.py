@@ -1,14 +1,13 @@
 
 ##################### DEBUG CONFIGS #####################
-DEBUG = True
-
+DEBUG = False
 ##################### DISPLAY CONFIGS #####################
 DATA = "config.json"
 CAPTION = "Meme Game"
 SCREEN_WIDTH = 1366
 SCREEN_HEIGHT = 720
 FPS = 60 
-FONT = "./Font/PressStart2P-Regular.ttf/"
+FONT = "Recursos/Font/PressStart2P-Regular.ttf"
 BACKGROUND_COLOR = (5, 37, 46)
 TEXT_COLOR = (255, 255, 255)
 SCOREBOARD_X = SCREEN_WIDTH - 300

@@ -1,8 +1,8 @@
 import pygame as pg
 import json as js
 from Enemy import Enemy
-from constants import *
 from Player import Player
+from constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, CAPTION, BACKGROUND_COLOR, FONT
 
 class Game():
     def __init__(self, json_file):
@@ -18,6 +18,7 @@ class Game():
         self.delta_ms = self.clock.tick(FPS)
         self.player = Player(json.get("player"))
         self.enemy = Enemy(json.get("enemy"))
+        self.font = pg.font.Font(FONT, 36)
         # self.finished = False
         # self.time_start = 240000 / 1000
 
@@ -32,17 +33,46 @@ class Game():
     #     if self.time_start <= 0:
     #         self.finished = True
 
-    def main_menu(self):
-        pass
-    def pause(self):
-        pass
-    def play(self):
-        pass    
-    def options(self):
-        pass
+    def main_menu(self, screen):
+        while True:
+            screen.fill((0,0,0))
+            self.draw_text('main menu', self.font, (255, 255, 255), screen, 20, 20)
 
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+            pg.display.update()
+
+    def pause(self, screen):
+        while True:
+            screen.fill((0,0,0))
+            self.draw_text('pause menu', self.font, (255, 255, 255), screen, 20, 20)
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+            pg.display.update()
+
+    def play(self):
+        self.run()    
+    def options(self, screen):
+        while True:
+            screen.fill((0,0,0))
+            self.draw_text('option menu', self.font, (255, 255, 255), screen, 20, 20)
+
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+            pg.display.update()
+
+    def draw_text(self, text, font, color, screen, x, y):
+        textobj = font.render(text, 1, color)
+        textrect = textobj.get_rect()
+        textrect.topleft = (x, y)
+        screen.blit(textobj, textrect)
+        
     def run(self):
         while True:
+            self.draw_text('main menu', self.font, (255, 255, 255), self.screen, 20, 20)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     pg.quit()
