@@ -1,7 +1,9 @@
+from tkinter import font
 import pygame as pg
 import json as js
 from Enemy import Enemy
 from Player import Player
+from Buttons import Buttons
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, CAPTION, BACKGROUND_COLOR, FONT
 
 class Game():
@@ -19,6 +21,7 @@ class Game():
         self.player = Player(json.get("player"))
         self.enemy = Enemy(json.get("enemy"))
         self.font = pg.font.Font(FONT, 36)
+        pg.font.init()
         # self.finished = False
         # self.time_start = 240000 / 1000
 
@@ -36,11 +39,29 @@ class Game():
     def main_menu(self, screen):
         while True:
             screen.fill((0,0,0))
-            self.draw_text('main menu', self.font, (255, 255, 255), screen, 20, 20)
-
+            MENU_MOUSE_POS = pg.mouse.get_pos()
+            MENU_TEXT = self.font.render("MAIN MENU", True, "#b68f40")
+            MENU_RECT = MENU_TEXT.get_rect(center=(640, 100))
+            PLAY_BUTTON = Buttons(image=pg.image.load("Recursos/Menu/Buttons/Play.png"), pos=(640, 250), 
+                                text_input="PLAY", font=self.font, base_color="#d7fcd4", hovering_color="White")
+            OPTIONS_BUTTON = Buttons(image=pg.image.load("Recursos/Menu/Buttons/Settings.png"), pos=(640, 400), 
+                                text_input="OPTIONS", font=self.font, base_color="#d7fcd4", hovering_color="White")
+            QUIT_BUTTON = Buttons(image=pg.image.load("Recursos/Menu/Buttons/Close.png"), pos=(640, 550), 
+                                text_input="QUIT", font=self.font, base_color="#d7fcd4", hovering_color="White")
+            screen.blit(MENU_TEXT, MENU_RECT)
+            for button in [PLAY_BUTTON, OPTIONS_BUTTON, QUIT_BUTTON]:
+                button.changeColor(MENU_MOUSE_POS)
+                button.update(screen)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     pg.quit()
+                if event.type == pg.MOUSEBUTTONDOWN:
+                    if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
+                        self.play()
+                    if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
+                        self.options()
+                    if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
+                        pg.quit()
             pg.display.update()
 
     def pause(self, screen):
@@ -53,7 +74,8 @@ class Game():
             pg.display.update()
 
     def play(self):
-        self.run()    
+        self.run()
+
     def options(self, screen):
         while True:
             screen.fill((0,0,0))
@@ -69,7 +91,7 @@ class Game():
         textrect = textobj.get_rect()
         textrect.topleft = (x, y)
         screen.blit(textobj, textrect)
-        
+    
     def run(self):
         while True:
             self.draw_text('main menu', self.font, (255, 255, 255), self.screen, 20, 20)
