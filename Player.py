@@ -1,4 +1,5 @@
 import pygame as pg
+from Projectile import Projectile
 from auxiliar import SurfaceManager as sf
 from constants import SCREEN_WIDTH, DEBUG
 
@@ -63,7 +64,7 @@ class Player(pg.sprite.Sprite):
         else:
             self.__is_jumping = False
             self.stay()
-    
+
     def __set_borders_limits(self):
         pixels_move = 0
         if self.__move_x > 0:

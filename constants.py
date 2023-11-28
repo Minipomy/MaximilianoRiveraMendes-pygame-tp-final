@@ -15,14 +15,10 @@ OPTIONS_TEXT="OPTIONS"
 CLOSE_TEXT= "CLOSE"
 BUTTON_BASE_COLOR="#d7fcd4" 
 HOVER_COLOR="White"
-# MAIN_MENU = 
-# SCOREBOARD_X = SCREEN_WIDTH - 300
-# SCOREBOARD_Y = 10
-# SCOREBOARD_W = 300
-# SCOREBOARD_H = 50
-# MESSAGE_SIZE = 20
-# MESSAGE_POSITION = [SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2]
-# GAMEOVER_MSG = ["Game Over", "Your Score: ", str(score), "\n Press Enter to Restart"]
+MAIN_MENU_TEXT = "MAIN MENU"
+RESUME_TEXT = "RESUME"
+PRIMARY_ACCENT = "#b68f40"
+
 
 ##################### SOUNDS CONFIGS #####################
 SOUND_PATH = './sounds/'

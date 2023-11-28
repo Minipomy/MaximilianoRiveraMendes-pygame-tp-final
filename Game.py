@@ -1,9 +1,9 @@
 import sys
-from tkinter import font
 import pygame as pg
 import json as js
 from Enemy import Enemy
 from Player import Player
+from Projectile import Projectile
 from Buttons import Buttons
 from constants import *
 
@@ -19,12 +19,14 @@ class Game():
         self.caption = pg.display.set_caption(CAPTION)
         self.clock = pg.time.Clock()
         self.delta_ms = self.clock.tick(FPS)
-        self.player = Player(json.get("player"))
-        self.enemy = Enemy(json.get("enemy"))
         self.font = pg.font.Font(FONT, 36)
         pg.font.init()
-        # self.finished = False
-        # self.time_start = 240000 / 1000
+
+        self.isPause = False
+        self.sprites = pg.sprite.Group()
+        self.player = Player(json.get("player"))
+        self.enemy = Enemy(json.get("enemy"))
+        
 
     def get_width(self):
         return self.width
@@ -39,41 +41,53 @@ class Game():
 
     def main_menu(self):
         while True:
-            self.screen.fill((0,0,0))
-            MENU_MOUSE_POS = pg.mouse.get_pos()
-            MENU_TEXT = self.font.render("MAIN MENU", True, "#b68f40")
-            MENU_RECT = MENU_TEXT.get_rect(center=(640, 100))
-            PLAY_BUTTON = Buttons(pos=(640, 250), text_input=PLAY_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
-            OPTIONS_BUTTON = Buttons(pos=(640, 400), text_input=OPTIONS_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
-            QUIT_BUTTON = Buttons(pos=(640, 550), text_input=CLOSE_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
+            MOUSE = pg.mouse.get_pos()
+            MENU_TEXT = self.font.render(MAIN_MENU_TEXT, True, PRIMARY_ACCENT)
+            MENU_RECT = MENU_TEXT.get_rect(center=(340, 100))
+            PLAY_BUTTON = Buttons(pos=(340, 250), text_input=PLAY_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
+            OPTIONS_BUTTON = Buttons(pos=(340, 400), text_input=OPTIONS_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
+            QUIT_BUTTON = Buttons(pos=(340, 550), text_input=CLOSE_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
+            self.screen.fill((0, 0, 0))
             self.screen.blit(MENU_TEXT, MENU_RECT)
             for button in [PLAY_BUTTON, OPTIONS_BUTTON, QUIT_BUTTON]:
-                button.changeColor(MENU_MOUSE_POS)
+                button.changeColor(MOUSE)
                 button.update(self.screen)
-            for event in pg.event.get():
-                if event.type == pg.QUIT:
-                    pg.quit()
-                    sys.exit()
-                if event.type == pg.MOUSEBUTTONDOWN:
-                    if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
-                        self.run()
-                    if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
-                        self.options()
-                    if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
+                for event in pg.event.get():
+                    if event.type == pg.QUIT:
                         pg.quit()
                         sys.exit()
-            pg.display.update()
+                    if event.type == pg.MOUSEBUTTONDOWN:
+                        if PLAY_BUTTON.checkForInput(MOUSE):
+                            self.run()
+                        if OPTIONS_BUTTON.checkForInput(MOUSE):
+                            self.options()
+                        if QUIT_BUTTON.checkForInput(MOUSE):
+                            pg.quit()
+                            sys.exit()
+            pg.display.flip()
 
-    def set_pause(self, pause):
-        while pause:
-            self.screen.fill((0,0,0))
-            self.draw_text('pause menu',(255, 255, 255), self.screen, 20, 20)
-            for event in pg.event.get():
-                if event.type == pg.QUIT:
-                    pg.quit()
-                if event.type == pg.KEYDOWN:
-                    if event.key == pg.K_p:
-                        pause = False
+    def set_pause(self):
+        while self.isPause:
+            MOUSE = pg.mouse.get_pos()
+            RESUME_BUTTON = Buttons(pos=(640, 250), text_input=RESUME_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
+            OPTIONS_BUTTON = Buttons(pos=(640, 400), text_input=OPTIONS_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
+            MAIN_MENU_BUTTON = Buttons(pos=(640, 550), text_input=MAIN_MENU_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
+            self.screen.fill((0, 0, 0))
+            # self.screen.blit(MENU_TEXT, MENU_RECT)
+            for button in [RESUME_BUTTON, OPTIONS_BUTTON, MAIN_MENU_BUTTON]:
+                button.changeColor(MOUSE)
+                button.update(self.screen)
+                for event in pg.event.get():
+                    if event.type == pg.QUIT:
+                        pg.quit()
+                        sys.exit()
+                    if event.type == pg.MOUSEBUTTONDOWN:
+                        if RESUME_BUTTON.checkForInput(MOUSE):
+                            self.isPause = False
+                        if OPTIONS_BUTTON.checkForInput(MOUSE):
+                            self.options()
+                        if MAIN_MENU_BUTTON.checkForInput(MOUSE):
+                            self.main_menu()
             pg.display.flip()
             
 
@@ -94,18 +108,28 @@ class Game():
     
     def run(self):
         while True:
+            bullets = []
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     pg.quit()
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_p:
-                        self.set_pause(True)
+                        self.isPause = True
+                        self.set_pause()
+                    if event.key == pg.K_s:
+                        bullets.append(Projectile(self.player.__rect.x, self.player.__rect.y))
+                        for bullet in bullets:
+                            bullet.update()
+                
+
                 
             self.screen.fill(BACKGROUND_COLOR)
             player = self.player
             enemy = self.enemy
             player.update(self.delta_ms)
             player.draw(self.screen)
+            for bullet in bullets:
+                bullet.draw(self.screen)
             enemy.update(self.delta_ms)
             enemy.draw(self.screen)
             pg.display.flip()
