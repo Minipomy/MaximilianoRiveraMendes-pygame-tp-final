@@ -1,6 +1,7 @@
+import random
 import pygame as pg
 from auxiliar import SurfaceManager as sf
-from constants import SCREEN_WIDTH, DEBUG
+from constants import SCREEN_WIDTH, DEBUG, SCREEN_HEIGHT
 
 class Enemy(pg.sprite.Sprite):
     def __init__(self, enemy_data, frame_rate = 60, speed_run = 12, gravity=16):
@@ -77,7 +78,10 @@ class Enemy(pg.sprite.Sprite):
             self.__rect.x += self.__set_borders_limits()
             self.__rect.y += self.__move_y
             # Parte relacionado a saltar
-            if self.__rect.y < 300:
+            if self.__rect.y > SCREEN_HEIGHT:
+                self.__rect.y += self.__gravity
+
+            if self.__rect.y < SCREEN_HEIGHT - self.__actual_img_animation.get_height():
                 self.__rect.y += self.__gravity
 
     def do_animation(self, delta_ms):
@@ -92,10 +96,10 @@ class Enemy(pg.sprite.Sprite):
                 #     self.__is_jumping = False
                 #     self.__move_y = 0
     
-    def update(self, delta_ms):
+    def update(self, delta_ms, screen):
         self.do_movement(delta_ms)
         self.do_animation(delta_ms)
-        
+        self.draw(screen)
     
     def draw(self, screen: pg.surface.Surface):
         if DEBUG:

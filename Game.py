@@ -1,6 +1,7 @@
 import sys
 import pygame as pg
 import json as js
+import time
 from Enemy import Enemy
 from Player import Player
 from Projectile import Projectile
@@ -23,10 +24,12 @@ class Game():
         pg.font.init()
 
         self.isPause = False
+        self.isPlaying = False
         self.sprites = pg.sprite.Group()
         self.player = Player(json.get("player"))
         self.enemy = Enemy(json.get("enemy"))
-        
+
+
 
     def get_width(self):
         return self.width
@@ -58,6 +61,7 @@ class Game():
                         sys.exit()
                     if event.type == pg.MOUSEBUTTONDOWN:
                         if PLAY_BUTTON.checkForInput(MOUSE):
+                            self.isPlaying = True
                             self.run()
                         if OPTIONS_BUTTON.checkForInput(MOUSE):
                             self.options()
@@ -87,6 +91,7 @@ class Game():
                         if OPTIONS_BUTTON.checkForInput(MOUSE):
                             self.options()
                         if MAIN_MENU_BUTTON.checkForInput(MOUSE):
+                            self.isPlaying = False
                             self.main_menu()
             pg.display.flip()
             
@@ -107,8 +112,9 @@ class Game():
         screen.blit(textobj, textrect)
     
     def run(self):
-        while True:
-            bullets = []
+        start_ticks = int(pg.time.get_ticks())
+        while self.isPlaying:
+            seconds = int((pg.time.get_ticks()-start_ticks)/1000)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     pg.quit()
@@ -116,21 +122,13 @@ class Game():
                     if event.key == pg.K_p:
                         self.isPause = True
                         self.set_pause()
-                    if event.key == pg.K_s:
-                        bullets.append(Projectile(self.player.__rect.x, self.player.__rect.y))
-                        for bullet in bullets:
-                            bullet.update()
-                
-
-                
+                    
             self.screen.fill(BACKGROUND_COLOR)
+            self.draw_text("Time: ", (255, 255, 255), self.screen, 20, 20)
+            self.draw_text(str(seconds),(255, 255, 255), self.screen, 200, 20)
             player = self.player
             enemy = self.enemy
-            player.update(self.delta_ms)
-            player.draw(self.screen)
-            for bullet in bullets:
-                bullet.draw(self.screen)
-            enemy.update(self.delta_ms)
-            enemy.draw(self.screen)
+            player.update(self.delta_ms, self.screen)
+            enemy.update(self.delta_ms, self.screen)
             pg.display.flip()
             self.clock.tick(100)  # Limita el juego a 60 FPS

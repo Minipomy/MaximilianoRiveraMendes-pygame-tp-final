@@ -1,7 +1,7 @@
 import pygame as pg
 from Projectile import Projectile
 from auxiliar import SurfaceManager as sf
-from constants import SCREEN_WIDTH, DEBUG
+from constants import SCREEN_WIDTH, DEBUG, SCREEN_HEIGHT
 
 class Player(pg.sprite.Sprite):
     def __init__(self, player_data, frame_rate = 60, speed_run = 12, gravity = 16, jump = 32):
@@ -26,6 +26,11 @@ class Player(pg.sprite.Sprite):
         self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
         self.__rect = self.__actual_img_animation.get_rect()
         self.__is_looking_right = True
+
+        self.laser_time = 0
+        self.laser_cooldown = 100
+        self.ready = False
+        self.bullet_group = pg.sprite.Group()
 
     
     def __set_x_animations_preset(self, move_x, animation_list: list[pg.surface.Surface], look_r: bool):
@@ -73,6 +78,18 @@ class Player(pg.sprite.Sprite):
             pixels_move = self.__move_x if self.__rect.x > 0 else 0
         return pixels_move
 
+    def attack(self):
+        print('!piu piu!')
+        self.bullet_group.add(self.create_bullet())
+        
+    def create_bullet(self):
+        return Projectile(self.__rect.x, self.__rect.top) # Crea y devuelve un objeto de la clase Bullet en la posición actual del ratón
+
+    def recharge(self):
+        if not self.ready:
+            curent_time = pg.time.get_ticks()
+            if curent_time - self.laser_time >= self.laser_cooldown:
+                self.ready = True
 
     def do_movement(self, delta_ms):
         keys = pg.key.get_pressed()
@@ -84,15 +101,23 @@ class Player(pg.sprite.Sprite):
             self.stay()
         if keys[pg.K_SPACE]:
             self.jump(True)
-
+        if keys[pg.K_s]:
+            self.attack()
+            self.ready = False
+            self.laser_time = pg.time.get_ticks()
+            print(self.laser_time)
 
         self.__player_move_time += delta_ms
         if self.__player_move_time >= self.__frame_rate:
             self.__player_move_time = 0
             self.__rect.x += self.__set_borders_limits()
             self.__rect.y += self.__move_y
+            
             # Parte relacionado a saltar
-            if self.__rect.y < 300:
+            if self.__rect.y > SCREEN_HEIGHT:
+                self.__rect.y += self.__gravity
+
+            if self.__rect.y < SCREEN_HEIGHT - self.__actual_img_animation.get_height():
                 self.__rect.y += self.__gravity
 
     def do_animation(self, delta_ms):
@@ -107,9 +132,13 @@ class Player(pg.sprite.Sprite):
                 #     self.__is_jumping = False
                 #     self.__move_y = 0
     
-    def update(self, delta_ms):
+    def update(self, delta_ms, screen):
+        self.recharge()
+        self.bullet_group.draw(screen)
+        self.bullet_group.update(self.__is_looking_right)
         self.do_movement(delta_ms)
         self.do_animation(delta_ms)
+        self.draw(screen)
         
     
     def draw(self, screen: pg.surface.Surface):
