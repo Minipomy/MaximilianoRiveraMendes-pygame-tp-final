@@ -4,27 +4,35 @@ from auxiliar import SurfaceManager as sf
 from constants import SCREEN_WIDTH, DEBUG, SCREEN_HEIGHT
 
 class Enemy(pg.sprite.Sprite):
-    def __init__(self, enemy_data, frame_rate = 60, speed_run = 12, gravity=16):
+    def __init__(self, enemy_data):
         super().__init__()
+        
+        # Imagenes del enemigo segun estado
         self.__iddle_r = sf.get_surface_from_spritesheet(enemy_data.get("idle"), 9, 1)
         self.__iddle_l = sf.get_surface_from_spritesheet(enemy_data.get("idle"), 9, 1, flip=True)
         self.__run_r = sf.get_surface_from_spritesheet(enemy_data.get("run"), 16, 1)
         self.__run_l = sf.get_surface_from_spritesheet(enemy_data.get("run"), 16, 1, flip=True)
-        self.__move_x = enemy_data.get("coord_x")
-        self.__move_y = enemy_data.get("coord_y")
-        self.__speed_run = speed_run
-        self.__frame_rate = frame_rate
+        
+        # Valores del enemigo 
+        self.__move_x = 0
+        self.__move_y = 0
+        self.__location = (enemy_data.get("coord_x"), enemy_data.get("coord_y"))
+        self.__speed_run = enemy_data.get("speed_run")
+        self.__gravity = enemy_data.get("gravity")
+        self.__frame_rate = enemy_data.get("frame_rate")
+        self.__is_jumping = False
+
+        # Atributos de control de animaciones
         self.__player_move_time = 0
         self.__player_animation_time = 0
-        self.__gravity = gravity
-        self.__is_jumping = False
         self.__initial_frame = 0
         self.__actual_animation = self.__iddle_r
-        self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
-        self.__rect = self.__actual_img_animation.get_rect()
+        self.image = self.__actual_animation[self.__initial_frame]
+        self.rect = self.image.get_rect(center = self.__location)
         self.__is_looking_right = True
 
-    
+    ################ ANIMACIONES ################
+    #   Funciones de control de animaciones del enemigo
     def __set_x_animations_preset(self, move_x, animation_list: list[pg.surface.Surface], look_r: bool):
         self.__move_x = move_x
         self.__actual_animation = animation_list
@@ -32,12 +40,13 @@ class Enemy(pg.sprite.Sprite):
         
     
     def __set_y_animations_preset(self):
-        self.__move_y = -self.__jump
+        # self.__move_y = -self.__jump
         self.__move_x = self.__speed_run if self.__is_looking_right else -self.__speed_run
-        self.__actual_animation = self.__jump_r if self.__is_looking_right else self.__jump_l
+        # self.__actual_animation = self.__jump_r if self.__is_looking_right else self.__jump_l
         self.__initial_frame = 0
-        self.__is_jumping = True
+        # self.__is_jumping = True
     
+    #   Animacion caminando/corriendo
     def run(self, direction: str = 'Right'):
         self.__initial_frame = 0
         match direction:
@@ -48,6 +57,7 @@ class Enemy(pg.sprite.Sprite):
                 look_right = False
                 self.__set_x_animations_preset(-self.__speed_run, self.__run_l, look_r=look_right)
     
+    #   Animacion estando quieto
     def stay(self):
         if self.__actual_animation != self.__iddle_l and self.__actual_animation != self.__iddle_r:
             self.__actual_animation = self.__iddle_r if self.__is_looking_right else self.__iddle_l
@@ -55,6 +65,7 @@ class Enemy(pg.sprite.Sprite):
             self.__move_x = 0
             self.__move_y = 0
     
+    #   Animacion de salto
     def jump(self, jumping=True):
         if jumping and not self.__is_jumping:
             self.__set_y_animations_preset()
@@ -62,28 +73,30 @@ class Enemy(pg.sprite.Sprite):
             self.__is_jumping = False
             self.stay()
     
+    #   Seteo de limites de pantalla
     def __set_borders_limits(self):
         pixels_move = 0
         if self.__move_x > 0:
-            pixels_move = self.__move_x if self.__rect.x < SCREEN_WIDTH - self.__actual_img_animation.get_width() else 0
+            pixels_move = self.__move_x if self.rect.x < SCREEN_WIDTH - self.image.get_width() else 0
         elif self.__move_x < 0:
-            pixels_move = self.__move_x if self.__rect.x > 0 else 0
+            pixels_move = self.__move_x if self.rect.x > 0 else 0
         return pixels_move
 
-
+    ################ ACCIONES / MOVIMIENTOS GENERALES ################
+    #   Controles de movimiento y disparo generales del jugador
     def do_movement(self, delta_ms):
         self.__player_move_time += delta_ms
         if self.__player_move_time >= self.__frame_rate:
             self.__player_move_time = 0
-            self.__rect.x += self.__set_borders_limits()
-            self.__rect.y += self.__move_y
+            self.rect.x += self.__set_borders_limits()
+            self.rect.y += self.__move_y
             # Parte relacionado a saltar
-            if self.__rect.y > SCREEN_HEIGHT:
-                self.__rect.y += self.__gravity
+            if self.rect.y > SCREEN_HEIGHT:
+                self.rect.y += self.__gravity
+            if self.rect.y < SCREEN_HEIGHT - self.image.get_height():
+                self.rect.y += self.__gravity
 
-            if self.__rect.y < SCREEN_HEIGHT - self.__actual_img_animation.get_height():
-                self.__rect.y += self.__gravity
-
+    #   Limitacion de FPS 
     def do_animation(self, delta_ms):
         self.__player_animation_time += delta_ms
         if self.__player_animation_time >= self.__frame_rate:
@@ -92,18 +105,14 @@ class Enemy(pg.sprite.Sprite):
                 self.__initial_frame += 1
             else:
                 self.__initial_frame = 0
-                # if self.__is_jumping:
-                #     self.__is_jumping = False
-                #     self.__move_y = 0
     
-    def update(self, delta_ms, screen):
+    def update(self, delta_ms):
         self.do_movement(delta_ms)
         self.do_animation(delta_ms)
-        self.draw(screen)
     
     def draw(self, screen: pg.surface.Surface):
         if DEBUG:
-            pg.draw.rect(screen, 'red', self.__rect)
+            pg.draw.rect(screen, 'red', self.rect)
             # pg.draw.rect(screen, 'green', self.__rect.bottom)
-        self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
-        screen.blit(self.__actual_img_animation, self.__rect)
+        self.image = self.__actual_animation[self.__initial_frame]
+        screen.blit(self.image, self.rect)

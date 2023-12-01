@@ -1,15 +1,52 @@
 {
     "player": {
-        "idle": "Recursos/Main Characters/Virtual Guy/Idle (32x32).png"
-,       "run": "Recursos/Main Characters/Virtual Guy/Run (32x32).png",
-        "jump": "Recursos/Main Characters/Virtual Guy/jump (32x32).png",
+        "idle_img": "Recursos/Main Characters/Virtual Guy/Idle (32x32).png"
+,       "run_img": "Recursos/Main Characters/Virtual Guy/Run (32x32).png",
+        "jump_img": "Recursos/Main Characters/Virtual Guy/jump (32x32).png",
         "coord_x": 0,
-        "coord_y": 0
+        "coord_y": 0,
+        "life": 3,
+        "speed_run": 12,
+        "gravity": 16,
+        "jump": 32,
+        "frame_rate": 60,
+        "bullet": {
+            "velocity": 7,
+            "laser_time": 10,
+            "laser_cooldown": 50, 
+            "size_x": 5,
+            "size_y": 2
+        }
     },
     "enemy": {
         "idle": "Recursos/Enemies/AngryPig/Idle (36x30).png"
 ,       "run": "Recursos/Enemies/AngryPig/Walk (36x30).png",
-        "coord_x": 0,
-        "coord_y": 0
+        "coord_x": 100,
+        "coord_y": 100,
+        "speed_run": 12,
+        "gravity": 16,
+        "frame_rate": 60
+    },
+    "tile": {
+        "tile_img": "Recursos/Menu/Text/Text (White) (8x10).png",
+        "pos_x": 500,
+        "pos_y": 500,
+        "size_x": 200,
+        "size_y": 200
+    },
+    "stages": {
+        "stage_1": {
+            "player_pos": [440,440],
+            "enemy_count": 1,
+            "enemy_pos": [[200, 200]],
+            "tiles_pos": [[200, 200]]
+        },
+        "stage_2": {
+            "tiles_pos": [[200, 200], [100, 100], [300, 300]]
+        },
+        "stage_3": {
+            "tiles_pos": [[200, 200], [100, 100], [300, 300]]
+        }
     }
+
 }
