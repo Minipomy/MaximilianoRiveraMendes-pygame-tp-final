@@ -4,7 +4,7 @@ from auxiliar import SurfaceManager as sf
 from constants import SCREEN_WIDTH, DEBUG, SCREEN_HEIGHT
 
 class Enemy(pg.sprite.Sprite):
-    def __init__(self, enemy_data):
+    def __init__(self, enemy_data, location):
         super().__init__()
         
         # Imagenes del enemigo segun estado
@@ -13,14 +13,19 @@ class Enemy(pg.sprite.Sprite):
         self.__run_r = sf.get_surface_from_spritesheet(enemy_data.get("run"), 16, 1)
         self.__run_l = sf.get_surface_from_spritesheet(enemy_data.get("run"), 16, 1, flip=True)
         
+        #   Flag de Jefe 
+        self.is_boss = enemy_data.get("is_boss")
+
         # Valores del enemigo 
         self.__move_x = 0
         self.__move_y = 0
-        self.__location = (enemy_data.get("coord_x"), enemy_data.get("coord_y"))
+        self.life = enemy_data.get("life")
+        self.__location = (location)
         self.__speed_run = enemy_data.get("speed_run")
         self.__gravity = enemy_data.get("gravity")
         self.__frame_rate = enemy_data.get("frame_rate")
         self.__is_jumping = False
+        self.is_alive = True
 
         # Atributos de control de animaciones
         self.__player_move_time = 0
@@ -31,14 +36,18 @@ class Enemy(pg.sprite.Sprite):
         self.rect = self.image.get_rect(center = self.__location)
         self.__is_looking_right = True
 
+        if self.is_boss:
+            self.life *= 2
+            self.__speed_run *= 2
+
     ################ ANIMACIONES ################
-    #   Funciones de control de animaciones del enemigo
+    #   Animaciones eje x
     def __set_x_animations_preset(self, move_x, animation_list: list[pg.surface.Surface], look_r: bool):
         self.__move_x = move_x
         self.__actual_animation = animation_list
         self.__is_looking_right = look_r
-        
     
+    #   Animaciones eje Y
     def __set_y_animations_preset(self):
         # self.__move_y = -self.__jump
         self.__move_x = self.__speed_run if self.__is_looking_right else -self.__speed_run
@@ -46,6 +55,15 @@ class Enemy(pg.sprite.Sprite):
         self.__initial_frame = 0
         # self.__is_jumping = True
     
+    #   Seteo de limites de pantalla
+    def __set_borders_limits(self):
+        pixels_move = 0
+        if self.__move_x > 0:
+            pixels_move = self.__move_x if self.rect.x < SCREEN_WIDTH - self.image.get_width() else 0
+        elif self.__move_x < 0:
+            pixels_move = self.__move_x if self.rect.x > 0 else 0
+        return pixels_move
+
     #   Animacion caminando/corriendo
     def run(self, direction: str = 'Right'):
         self.__initial_frame = 0
@@ -72,18 +90,17 @@ class Enemy(pg.sprite.Sprite):
         else:
             self.__is_jumping = False
             self.stay()
-    
-    #   Seteo de limites de pantalla
-    def __set_borders_limits(self):
-        pixels_move = 0
-        if self.__move_x > 0:
-            pixels_move = self.__move_x if self.rect.x < SCREEN_WIDTH - self.image.get_width() else 0
-        elif self.__move_x < 0:
-            pixels_move = self.__move_x if self.rect.x > 0 else 0
-        return pixels_move
 
     ################ ACCIONES / MOVIMIENTOS GENERALES ################
-    #   Controles de movimiento y disparo generales del jugador
+
+    #   Enemigo recibe danio
+    def get_damage(self, entity):
+        if entity.rect.colliderect(self.rect):
+            self.life -= 1
+            self.invensible = True
+            if self.life <= 0:
+                self.is_alive = False
+
     def do_movement(self, delta_ms):
         self.__player_move_time += delta_ms
         if self.__player_move_time >= self.__frame_rate:
@@ -107,8 +124,9 @@ class Enemy(pg.sprite.Sprite):
                 self.__initial_frame = 0
     
     def update(self, delta_ms):
-        self.do_movement(delta_ms)
-        self.do_animation(delta_ms)
+        if self.is_alive:
+            self.do_movement(delta_ms)
+            self.do_animation(delta_ms)
     
     def draw(self, screen: pg.surface.Surface):
         if DEBUG:

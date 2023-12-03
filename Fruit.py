@@ -3,13 +3,13 @@ from auxiliar import SurfaceManager as sf
 from constants import DEBUG
 
 class Fruit(pg.sprite.Sprite):
-    def __init__(self, fruit_data):
+    def __init__(self, fruit_data, location):
         super().__init__()
 
         #   Atributos de ubicacion y de imagen
-        self.pos_x = fruit_data.get("pos_x")
-        self.pos_y = fruit_data.get("pos_y")
-        self.location = (self.pos_x, self.pos_y)
+        # self.pos_x = fruit_data.get("pos_x")
+        # self.pos_y = fruit_data.get("pos_y")
+        self.location = location
         
         #   Atributos de animacion
         self.idle = sf.get_surface_from_spritesheet(fruit_data.get("fruit_img"), 17, 1)
@@ -29,9 +29,8 @@ class Fruit(pg.sprite.Sprite):
             else:
                 self.initial_frame = 0
 
-    def update(self, screen, delta_ms):
+    def update(self, delta_ms):
         self.do_animation(delta_ms)
-        self.draw(screen)
 
     def draw(self, screen):
         if DEBUG:

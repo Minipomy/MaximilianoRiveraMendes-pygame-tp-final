@@ -2,6 +2,7 @@ import sys
 import pygame as pg
 import json as js
 import time
+from Stage import Stage
 from Enemy import Enemy
 from Player import Player
 from Fruit import Fruit
@@ -10,7 +11,7 @@ from Tile import Tile
 from Buttons import Buttons
 from constants import *
 
-class Game():
+class Menu():
     def __init__(self, json_file):
         
         #   Archivo de configuracion
@@ -23,9 +24,7 @@ class Game():
         self.height = SCREEN_HEIGHT
         self.stages = self.json.get("stages")
         self.stage_selected = self.stages.get("stage_1")
-        self.background = self.stage_selected.get("BG_img")
         self.size = (self.width, self.height)
-        self.image = pg.transform.scale(pg.image.load(self.background), self.size)
         self.screen = pg.display.set_mode(self.size)
         self.caption = pg.display.set_caption(CAPTION)
         self.clock = pg.time.Clock()
@@ -36,22 +35,6 @@ class Game():
         #   Atributos de control de juego y sprites
         self.isPause = False
         self.isPlaying = False
-
-        #   Agregamos los enemigos, tiles y jugador
-        self.sprites = pg.sprite.Group()
-        self.enemy = pg.sprite.Group()
-        self.tile = pg.sprite.Group()
-        self.fruit = pg.sprite.Group()
-        self.player = Player(self.stage_selected.get("player"))
-        self.enemy.add(Enemy(self.stage_selected.get("enemy")))
-        self.tile.add(Tile(self.stage_selected.get("tile")))
-        self.fruit.add(Fruit(self.stage_selected.get("fruit")))
-
-    def get_width(self):
-        return self.width
-    
-    def get_height(self):
-        return self.height
 
     def main_menu(self):
         while True:
@@ -131,13 +114,15 @@ class Game():
                     if STAGE_1.checkForInput(MOUSE):
                         self.isPlaying = True
                         self.stage_selected = self.stages.get("stage_1")
-                        self.run()
+                        Stage(self.stage_selected, self.font, self.screen, self.size).stage_run()
                     if STAGE_2.checkForInput(MOUSE):
                         self.isPlaying = True
                         self.stage_selected = self.stages.get("stage_2")
+                        Stage(self.stage_selected, self.font, self.screen, self.size).stage_run()
                     if STAGE_3.checkForInput(MOUSE):
                         self.isPlaying = True
                         self.stage_selected = self.stages.get("stage_3")
+                        Stage(self.stage_selected, self.font, self.screen, self.size).stage_run()
             pg.display.update()            
 
     def options(self):
@@ -148,62 +133,3 @@ class Game():
                 if event.type == pg.QUIT:
                     pg.quit()
             pg.display.update()
-
-    def draw_text(self, text, color, screen, x, y):
-        textobj = self.font.render(text, 1, color)
-        textrect = textobj.get_rect()
-        textrect.topleft = (x, y)
-        screen.blit(textobj, textrect)
-
-    def run(self):
-        start_ticks = int(pg.time.get_ticks())
-        while self.isPlaying:
-            self.screen.blit(self.image, (0, 0))
-            seconds = int((pg.time.get_ticks()-start_ticks)/1000)
-            for event in pg.event.get():
-                if event.type == pg.QUIT:
-                    pg.quit()
-                if event.type == pg.KEYDOWN:
-                    if event.key == pg.K_p:
-                        self.isPause = True
-                        self.set_pause()
-
-            #   Generamos contador de tiempo en stage
-            self.draw_text("Time: ", (255, 255, 255), self.screen, 20, 20)
-            self.draw_text(str(seconds),(255, 255, 255), self.screen, 200, 20)
-            
-            for bullet in self.player.bullet_group:
-                for enemy in self.enemy:
-                    if bullet.rect.colliderect(enemy.rect):
-                        enemy.kill()
-            
-            for fruit in self.fruit:
-                if fruit.rect.colliderect(self.player):
-                    fruit.kill()
-                    self.player.extra_life() 
-
-            for enemy in self.enemy:
-                if enemy.rect.colliderect(self.player):
-                    now = pg.time.get_ticks()
-                    self.player.get_damage(enemy, now)
-                    print(self.player.life)
-
-            #   Agregamos los enemigos al Stage
-            self.enemy.draw(self.screen)
-            self.enemy.update(self.delta_ms)
-
-            # #   Agregamos los Tiles al Stage
-            self.tile.draw(self.screen)
-            
-            # #   Agregamos las frutas al Stage
-            self.fruit.update(self.screen, self.delta_ms)
-            
-            #   Agregamos el jugador al Stage
-            for tile in self.tile:
-                self.player.is_on_platform(tile)
-
-            self.player.update(self.delta_ms, self.screen)
-
-            #   Actualizacion de pantalla
-            pg.display.flip()
-            self.clock.tick(100)  # Limita el juego a 60 FPS

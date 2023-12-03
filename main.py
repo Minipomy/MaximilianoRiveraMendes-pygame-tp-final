@@ -1,6 +1,6 @@
-from Game import Game
+from Game import Menus
 from constants import DATA 
 
 if __name__ == "__main__":
-    game = Game(DATA)
-    game.main_menu() 
+    game = Menus(DATA)
+    game.main_menu()

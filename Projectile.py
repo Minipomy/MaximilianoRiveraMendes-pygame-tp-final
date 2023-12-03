@@ -6,7 +6,6 @@ class Projectile(pg.sprite.Sprite):
         super().__init__()
         self.image = pg.Surface((projectile_data.get("size_x"), projectile_data.get("size_y"))) 
         self.image.fill((255, 0, 0))
-        # self.image = pg.image.load('./Recursos/Traps/player_laser.png')
         self.direction = direction
         self.velocity = projectile_data.get("velocity")
         self.rect = self.image.get_rect(center=(pos_x, pos_y))
