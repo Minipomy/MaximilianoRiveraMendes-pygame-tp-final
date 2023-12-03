@@ -1,5 +1,4 @@
 import pygame as pg
-from Menu import Menu
 from Player import Player
 from Enemy import Enemy
 from Fruit import Fruit
@@ -7,14 +6,13 @@ from Tile import Tile
 from functions import draw_text
 from constants import SCREEN_HEIGHT, SCREEN_WIDTH, FPS
 
-class Stage(Menu):
-    def __init__(self, stage_data):
-        super().__init__(self)
+class Stage:
+    def __init__(self, stage_data, font, screen, size):
         #   Decoradores generales
         self.stage = stage_data
-        # self.screen = screen
-        # self.size = size
-        # self.font = font
+        self.screen = screen
+        self.size = size
+        self.font = font
 #        pg.font.init()
         self.background = self.stage.get("BG_img")
         self.image = pg.transform.scale(pg.image.load(self.background), self.size)
@@ -49,14 +47,14 @@ class Stage(Menu):
 
     def generate_fruits(self, counter):
         if len(self.fruit) == 0:
-            for index in range(0,counter-1):
+            for index in range(counter):
                 fruit = Fruit(self.stage.get("fruit"), self.stage.get("fruit_pos")[index])
                 self.add_sprite(fruit)
                 self.add_fruit(fruit)
 
     def generate_enemies(self, counter):
         if len(self.enemy) == 0:
-            for index in range(0,counter-1):
+            for index in range(counter):
                 enemy = Enemy(self.stage.get("enemy"), self.stage.get("enemy_pos")[index])
                 self.add_sprite(enemy)
                 self.add_enemy(enemy)

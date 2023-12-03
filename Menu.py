@@ -1,17 +1,11 @@
 import sys
 import pygame as pg
 import json as js
-import time
 from Stage import Stage
-from Enemy import Enemy
-from Player import Player
-from Fruit import Fruit
-from Projectile import Projectile
-from Tile import Tile
 from Buttons import Buttons
 from constants import *
 
-class Menu():
+class Menu:
     def __init__(self, json_file):
         
         #   Archivo de configuracion
