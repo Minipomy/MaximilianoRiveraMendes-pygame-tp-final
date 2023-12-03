@@ -31,9 +31,11 @@ class Fruit(pg.sprite.Sprite):
 
     def update(self, delta_ms):
         self.do_animation(delta_ms)
-
-    def draw(self, screen):
-        if DEBUG:
-            pg.draw.rect(screen, 'yellow', self.rect)
         self.image = self.idle[self.initial_frame]
-        screen.blit(self.image, self.rect)
+
+
+    # def draw(self, screen):
+    #     if DEBUG:
+    #         pg.draw.rect(screen, 'yellow', self.rect)
+    #     self.image = self.idle[self.initial_frame]
+    #     screen.blit(self.image, self.rect)

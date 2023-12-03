@@ -1,4 +1,5 @@
 import pygame as pg
+import sys
 from Player import Player
 from Enemy import Enemy
 from Fruit import Fruit
@@ -70,6 +71,7 @@ class Stage:
         for event in pg.event.get():
                 if event.type == pg.QUIT:
                     pg.quit()
+                    sys.exit()
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_p:
                         self.isPause = True
@@ -80,9 +82,11 @@ class Stage:
         for bullet in self.player.bullet_group:
             for enemy in self.enemy:
                 if bullet.rect.colliderect(enemy.rect):
-                    enemy.get_damage(self.player)
-                    if enemy.is_dead:
+                    enemy.get_damage(bullet)
+                    bullet.kill()
+                    if not enemy.is_alive:
                         enemy.kill()
+                        enemy.remove()
         
         #   Comprobamos si el jugador colisiona con la fruta
         for fruit in self.fruit:
@@ -95,6 +99,8 @@ class Stage:
             if enemy.rect.colliderect(self.player):
                 # now = pg.time.get_ticks()
                 self.player.get_damage(enemy)
+                if not self.player.is_alive:
+                    self.player.kill()
 
     def render_handler(self, ticks):
             #   Generamos el fondo de pantalla
@@ -105,7 +111,9 @@ class Stage:
             draw_text(self.font, "Time: ", (255, 255, 255), self.screen, 20, 20)
             draw_text(self.font, str(seconds),(255, 255, 255), self.screen, 200, 20)
             self.sprites.update(self.delta_ms)
-            self.player.update(self.delta_ms)
+            # self.player.update(self.delta_ms)
+            # self.enemy.update(self.delta_ms)
+            # self.fruit.update(self.delta_ms)
 
     def elements_handler(self):
         self.generate_enemies(self.enemy_counter)
@@ -113,7 +121,10 @@ class Stage:
         self.generate_tiles(self.tile_counter)
         #   Agregamos los sprites al stage
         self.sprites.draw(self.screen)
-        self.player.draw(self.screen)
+        self.player.bullet_group.draw(self.screen)
+        # self.player.draw(self.screen)
+        # self.enemy.draw(self.screen)
+        # self.fruit.draw(self.screen)
 
     def stage_run(self):
         start_ticks = int(pg.time.get_ticks())
@@ -123,4 +134,4 @@ class Stage:
             self.elements_handler()
             #   Actualizacion de pantalla
             pg.display.flip()
-            self.clock.tick(60)
+            self.clock.tick(FPS)

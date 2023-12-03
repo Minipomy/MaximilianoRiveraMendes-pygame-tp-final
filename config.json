@@ -15,11 +15,12 @@
                 "speed_run": 12,
                 "gravity": 16,
                 "jump": 32,
+                "damage_cooldown": 1500,
                 "frame_rate": 60,
                 "bullet": {
                     "velocity": 7,
-                    "laser_time": 10,
-                    "laser_cooldown": 10, 
+                    "laser_time": 0,
+                    "laser_cooldown": 600, 
                     "size_x": 15,
                     "size_y": 12
                 },
@@ -65,11 +66,12 @@
                 "speed_run": 12,
                 "gravity": 16,
                 "jump": 32,
+                "damage_cooldown": 1500,
                 "frame_rate": 60,
                 "bullet": {
                     "velocity": 7,
-                    "laser_time": 10,
-                    "laser_cooldown": 10, 
+                    "laser_time": 0,
+                    "laser_cooldown": 600, 
                     "size_x": 15,
                     "size_y": 12
                 },
@@ -115,11 +117,12 @@
                 "speed_run": 12,
                 "gravity": 16,
                 "jump": 32,
+                "damage_cooldown": 1500,
                 "frame_rate": 60,
                 "bullet": {
                     "velocity": 7,
-                    "laser_time": 10,
-                    "laser_cooldown": 10, 
+                    "laser_time": 0,
+                    "laser_cooldown": 600, 
                     "size_x": 15,
                     "size_y": 12
                 },

@@ -21,8 +21,6 @@ class Menu:
         self.size = (self.width, self.height)
         self.screen = pg.display.set_mode(self.size)
         self.caption = pg.display.set_caption(CAPTION)
-        self.clock = pg.time.Clock()
-        self.delta_ms = self.clock.tick(FPS)
         self.font = pg.font.Font(FONT, 36)
         pg.font.init()
 
