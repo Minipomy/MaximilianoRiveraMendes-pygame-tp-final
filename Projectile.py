@@ -4,7 +4,7 @@ from constants import *
 class Projectile(pg.sprite.Sprite):
     def __init__(self, projectile_data, pos_x, pos_y, direction:bool):
         super().__init__()
-        self.image = pg.Surface((projectile_data.get("size_x"), projectile_data.get("size_y")))
+        self.image = pg.Surface((projectile_data.get("size_x"), projectile_data.get("size_y"))) 
         self.image.fill((255, 0, 0))
         # self.image = pg.image.load('./Recursos/Traps/player_laser.png')
         self.direction = direction

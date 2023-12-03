@@ -4,6 +4,7 @@ import json as js
 import time
 from Enemy import Enemy
 from Player import Player
+from Fruit import Fruit
 from Projectile import Projectile
 from Tile import Tile
 from Buttons import Buttons
@@ -11,12 +12,20 @@ from constants import *
 
 class Game():
     def __init__(self, json_file):
+        
+        #   Archivo de configuracion
         data = open(json_file)
         self.json = js.load(data)
+
+        #   Atributos de control de pygame
         pg.init()
         self.width = SCREEN_WIDTH
         self.height = SCREEN_HEIGHT
+        self.stages = self.json.get("stages")
+        self.stage_selected = self.stages.get("stage_1")
+        self.background = self.stage_selected.get("BG_img")
         self.size = (self.width, self.height)
+        self.image = pg.transform.scale(pg.image.load(self.background), self.size)
         self.screen = pg.display.set_mode(self.size)
         self.caption = pg.display.set_caption(CAPTION)
         self.clock = pg.time.Clock()
@@ -24,16 +33,19 @@ class Game():
         self.font = pg.font.Font(FONT, 36)
         pg.font.init()
 
+        #   Atributos de control de juego y sprites
         self.isPause = False
         self.isPlaying = False
+
+        #   Agregamos los enemigos, tiles y jugador
         self.sprites = pg.sprite.Group()
         self.enemy = pg.sprite.Group()
         self.tile = pg.sprite.Group()
-        self.player = Player(self.json.get("player"))
-
-        #   Agregamos los enemigos y tiles al grupo
-        self.enemy.add(Enemy(self.json.get("enemy")))
-        self.tile.add(Tile(self.json.get("tile")))
+        self.fruit = pg.sprite.Group()
+        self.player = Player(self.stage_selected.get("player"))
+        self.enemy.add(Enemy(self.stage_selected.get("enemy")))
+        self.tile.add(Tile(self.stage_selected.get("tile")))
+        self.fruit.add(Fruit(self.stage_selected.get("fruit")))
 
     def get_width(self):
         return self.width
@@ -118,13 +130,14 @@ class Game():
                 if event.type == pg.MOUSEBUTTONDOWN:
                     if STAGE_1.checkForInput(MOUSE):
                         self.isPlaying = True
+                        self.stage_selected = self.stages.get("stage_1")
                         self.run()
                     if STAGE_2.checkForInput(MOUSE):
                         self.isPlaying = True
+                        self.stage_selected = self.stages.get("stage_2")
                     if STAGE_3.checkForInput(MOUSE):
                         self.isPlaying = True
-
-                
+                        self.stage_selected = self.stages.get("stage_3")
             pg.display.update()            
 
     def options(self):
@@ -141,10 +154,11 @@ class Game():
         textrect = textobj.get_rect()
         textrect.topleft = (x, y)
         screen.blit(textobj, textrect)
-    
+
     def run(self):
         start_ticks = int(pg.time.get_ticks())
         while self.isPlaying:
+            self.screen.blit(self.image, (0, 0))
             seconds = int((pg.time.get_ticks()-start_ticks)/1000)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -154,8 +168,6 @@ class Game():
                         self.isPause = True
                         self.set_pause()
 
-            self.screen.fill(BACKGROUND_COLOR)
-
             #   Generamos contador de tiempo en stage
             self.draw_text("Time: ", (255, 255, 255), self.screen, 20, 20)
             self.draw_text(str(seconds),(255, 255, 255), self.screen, 200, 20)
@@ -164,6 +176,17 @@ class Game():
                 for enemy in self.enemy:
                     if bullet.rect.colliderect(enemy.rect):
                         enemy.kill()
+            
+            for fruit in self.fruit:
+                if fruit.rect.colliderect(self.player):
+                    fruit.kill()
+                    self.player.extra_life() 
+
+            for enemy in self.enemy:
+                if enemy.rect.colliderect(self.player):
+                    now = pg.time.get_ticks()
+                    self.player.get_damage(enemy, now)
+                    print(self.player.life)
 
             #   Agregamos los enemigos al Stage
             self.enemy.draw(self.screen)
@@ -171,6 +194,9 @@ class Game():
 
             # #   Agregamos los Tiles al Stage
             self.tile.draw(self.screen)
+            
+            # #   Agregamos las frutas al Stage
+            self.fruit.update(self.screen, self.delta_ms)
             
             #   Agregamos el jugador al Stage
             for tile in self.tile:

@@ -13,40 +13,126 @@
         "bullet": {
             "velocity": 7,
             "laser_time": 10,
-            "laser_cooldown": 50, 
-            "size_x": 5,
-            "size_y": 2
+            "laser_cooldown": 10, 
+            "size_x": 15,
+            "size_y": 12
         }
     },
     "enemy": {
         "idle": "Recursos/Enemies/AngryPig/Idle (36x30).png"
 ,       "run": "Recursos/Enemies/AngryPig/Walk (36x30).png",
-        "coord_x": 100,
-        "coord_y": 100,
+        "coord_x": 0,
+        "coord_y": 0,
         "speed_run": 12,
         "gravity": 16,
+        "frame_rate": 60
+    },
+    "fruit": {
+        "fruit_img": "Recursos/Items/Fruits/Cherries.png",
+        "pos_x": 150,
+        "pos_y": 200,
         "frame_rate": 60
     },
     "tile": {
         "tile_img": "Recursos/Menu/Text/Text (White) (8x10).png",
         "pos_x": 500,
-        "pos_y": 500,
-        "size_x": 200,
-        "size_y": 200
+        "pos_y": 500
+    },
+    "stage_1": {
+        "BG_img": "Recursos/Background/BG_Stage_1.jpg"
     },
     "stages": {
         "stage_1": {
-            "player_pos": [440,440],
+            "BG_img": "Recursos/Background/BG_Stage_1.jpg",
+            "player_count": 1,
             "enemy_count": 1,
-            "enemy_pos": [[200, 200]],
-            "tiles_pos": [[200, 200]]
+            "tile_count": 1,
+            "fruit_count": 1,
+            "player": {
+                "idle_img": "Recursos/Main Characters/Virtual Guy/Idle (32x32).png",
+                "run_img": "Recursos/Main Characters/Virtual Guy/Run (32x32).png",
+                "jump_img": "Recursos/Main Characters/Virtual Guy/jump (32x32).png",
+                "coord_x": 0,
+                "coord_y": 0,
+                "life": 3,
+                "speed_run": 12,
+                "gravity": 16,
+                "jump": 32,
+                "frame_rate": 60,
+                "bullet": {
+                    "velocity": 7,
+                    "laser_time": 10,
+                    "laser_cooldown": 10, 
+                    "size_x": 15,
+                    "size_y": 12
+                },
+                "pos_x": 500,
+                "pos_y": 500
+            },
+            "enemy": {
+                "idle": "Recursos/Enemies/AngryPig/Idle (36x30).png"
+        ,       "run": "Recursos/Enemies/AngryPig/Walk (36x30).png",
+                "coord_x": 0,
+                "coord_y": 0,
+                "speed_run": 12,
+                "gravity": 16,
+                "frame_rate": 60,
+                "enemy_pos": [[200, 200]]
+            },
+            "tile": {
+                "tile_img": "Recursos/Menu/Text/Text (White) (8x10).png",
+                "pos_x": 0,
+                "pos_y": 0,
+                "tiles_pos": [[200, 200]]
+            },
+            "fruit": {
+                "fruit_img": "Recursos/Items/Fruits/Cherries.png",
+                "pos_x": 150,
+                "pos_y": 200,
+                "frame_rate": 60
+            }
         },
         "stage_2": {
-            "tiles_pos": [[200, 200], [100, 100], [300, 300]]
-        },
-        "stage_3": {
+            "BG_img": "Recursos/Background/BG_Stage_2.jpg",
+            "player_count": 1,
+            "enemy_count": 1,
+            "tile_count": 1,
+            "player": {
+                "idle_img": "Recursos/Main Characters/Virtual Guy/Idle (32x32).png",
+                "run_img": "Recursos/Main Characters/Virtual Guy/Run (32x32).png",
+                "jump_img": "Recursos/Main Characters/Virtual Guy/jump (32x32).png",
+                "coord_x": 0,
+                "coord_y": 0,
+                "life": 3,
+                "speed_run": 12,
+                "gravity": 16,
+                "jump": 32,
+                "frame_rate": 60,
+                "bullet": {
+                    "velocity": 7,
+                    "laser_time": 0.02,
+                    "laser_cooldown": 1500, 
+                    "size_x": 15,
+                    "size_y": 12
+                }
+            },
+            "player_pos": [[]],
+            "enemy": {
+                "idle": "Recursos/Enemies/AngryPig/Idle (36x30).png"
+        ,       "run": "Recursos/Enemies/AngryPig/Walk (36x30).png",
+                "coord_x": 0,
+                "coord_y": 0,
+                "speed_run": 12,
+                "gravity": 16,
+                "frame_rate": 60
+            },
+            "enemy_pos": [[200, 200], [100, 100], [300, 300]],
+            "tile": {
+                "tile_img": "Recursos/Menu/Text/Text (White) (8x10).png",
+                "pos_x": 0,
+                "pos_y": 0
+            },
             "tiles_pos": [[200, 200], [100, 100], [300, 300]]
         }
     }
-
 }

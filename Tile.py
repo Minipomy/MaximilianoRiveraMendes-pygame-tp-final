@@ -6,8 +6,9 @@ class Tile(pg.sprite.Sprite):
         super().__init__()
         self.pos_x = tile_data.get("pos_x")
         self.pos_y = tile_data.get("pos_y")
+        self.location = (self.pos_x, self.pos_y)
         self.image = pg.image.load(tile_data.get("tile_img")).convert_alpha()
-        self.rect = self.image.get_rect(center=(self.pos_x, self.pos_y))
+        self.rect = self.image.get_rect(center = self.location)
 
     
     def draw(self, screen):

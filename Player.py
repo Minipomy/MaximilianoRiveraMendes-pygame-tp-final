@@ -16,12 +16,15 @@ class Player(pg.sprite.Sprite):
         self.__jump_l = sf.get_surface_from_spritesheet(player_data.get("jump_img"), 1, 1, flip=True)
 
         #   Control de animaciones
+        self.pos_x = player_data.get("pos_x") 
+        self.pos_y = player_data.get("pos_y")
+        self.location = (self.pos_x, self.pos_y)
         self.__initial_frame = 0
         self.__player_move_time = 0
         self.__player_animation_time = 0
         self.__actual_animation = self.__iddle_r
         self.image = self.__actual_animation[self.__initial_frame]
-        self.rect = self.image.get_rect()
+        self.rect = self.image.get_rect(center = self.location)
         self.__is_looking_right = True
 
         #   Valores del jugador
@@ -33,13 +36,16 @@ class Player(pg.sprite.Sprite):
         self.__gravity = player_data.get("gravity")
         self.__jump = player_data.get("jump")
         self.life = player_data.get("life")
+        self.last_damage = pg.time.get_ticks()
+        self.damage_cooldown = 3000 
+        self.invensible = False
         self.isOnFloor = False
         self.__is_jumping = False
 
         #   Valores balas del jugador
         self.laser_time = self.__bullet_data.get("laser_time")
         self.laser_cooldown = self.__bullet_data.get("laser_cooldown")
-        self.ready = False
+        self.ready = True
         self.bullet_group = pg.sprite.Group()
 
     ################ ANIMACIONES ################
@@ -58,7 +64,6 @@ class Player(pg.sprite.Sprite):
     
     #   Animacion caminando/corriendo
     def run(self, direction: str = 'Right'):
-        self.__initial_frame = 0
         match direction:
             case 'Right':
                 look_right = True
@@ -94,9 +99,13 @@ class Player(pg.sprite.Sprite):
 
     ################ ACCIONES / MOVIMIENTOS GENERALES ################
 
+    def extra_life(self):
+        self.life += 1
+
     def get_damage(self, entity):
         if entity.rect.colliderect(self.rect):
             self.life -= 1
+            self.invensible = True
 
     #   El jugador dispara
     def attack(self):
@@ -112,7 +121,6 @@ class Player(pg.sprite.Sprite):
             curent_time = pg.time.get_ticks()
             if curent_time - self.laser_time >= self.laser_cooldown:
                 self.ready = True
-                print(self.ready)
 
     #   Controles de movimiento y disparo generales del jugador
     def do_movement(self, delta_ms):
@@ -125,7 +133,7 @@ class Player(pg.sprite.Sprite):
             self.stay()
         if keys[pg.K_SPACE]:
             self.jump()
-        if keys[pg.K_s]:
+        if keys[pg.K_s] and self.ready:
             self.attack()
             self.ready = False
             self.laser_time = pg.time.get_ticks()

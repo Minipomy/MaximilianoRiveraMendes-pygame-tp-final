@@ -4,8 +4,9 @@ DEBUG = False
 ##################### DISPLAY CONFIGS #####################
 DATA = r"config.json"
 CAPTION = "Meme Game"
-SCREEN_WIDTH = 700
-SCREEN_HEIGHT = 700
+SCREEN_WIDTH = 1366
+SCREEN_HEIGHT = 720
+SPRITE_SIZE = (140, 140)
 FPS = 60 
 FONT = r"Recursos/Font/PressStart2P-Regular.ttf"
 BACKGROUND_COLOR = (5, 37, 46)
