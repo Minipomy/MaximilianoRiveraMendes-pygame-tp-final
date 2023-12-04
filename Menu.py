@@ -24,9 +24,8 @@ class Menu:
         self.font = pg.font.Font(FONT, 36)
         pg.font.init()
 
-        #   Atributos de control de juego y sprites
-        self.isPause = False
-        self.isPlaying = False
+        #   Atributos de control de juego
+        self.is_game_select = False
 
     def main_menu(self):
         while True:
@@ -47,6 +46,7 @@ class Menu:
                         sys.exit()
                     if event.type == pg.MOUSEBUTTONDOWN:
                         if PLAY_BUTTON.checkForInput(MOUSE):
+                            self.is_game_select = True
                             self.game_select()
                         if OPTIONS_BUTTON.checkForInput(MOUSE):
                             self.options()
@@ -55,47 +55,18 @@ class Menu:
                             sys.exit()
             pg.display.flip()
 
-    def set_pause(self):
-        while self.isPause:
-            MOUSE = pg.mouse.get_pos()
-            MENU_TEXT = self.font.render(GAME_PAUSE_TEXT, True, PRIMARY_ACCENT)
-            MENU_RECT = MENU_TEXT.get_rect(topleft=(20, 20))
-            RESUME_BUTTON = Buttons(pos=(640, 250), text_input=RESUME_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
-            OPTIONS_BUTTON = Buttons(pos=(640, 400), text_input=OPTIONS_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
-            MAIN_MENU_BUTTON = Buttons(pos=(640, 550), text_input=MAIN_MENU_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
-            self.screen.fill((0, 0, 0))
-            self.screen.blit(MENU_TEXT, MENU_RECT)
-            for button in [RESUME_BUTTON, OPTIONS_BUTTON, MAIN_MENU_BUTTON]:
-                button.changeColor(MOUSE)
-                button.update(self.screen)
-                for event in pg.event.get():
-                    if event.type == pg.QUIT:
-                        pg.quit()
-                        sys.exit()
-                    if event.type == pg.KEYDOWN:
-                        if event.key == pg.K_p:
-                            self.isPause = False
-                    if event.type == pg.MOUSEBUTTONDOWN:
-                        if RESUME_BUTTON.checkForInput(MOUSE):
-                            self.isPause = False
-                        if OPTIONS_BUTTON.checkForInput(MOUSE):
-                            self.options()
-                        if MAIN_MENU_BUTTON.checkForInput(MOUSE):
-                            self.isPlaying = False
-                            self.main_menu()
-            pg.display.flip()
-
     def game_select(self):
-        while True:
+        while self.is_game_select:
             MOUSE = pg.mouse.get_pos()
             SELECT_GAME_TEXT = self.font.render(SELECT_STAGE_TEXT, True, PRIMARY_ACCENT)
             SELECT_STAGE_MENU = SELECT_GAME_TEXT.get_rect(topleft=(20, 20))
             STAGE_1 = Buttons(pos=(640, 250), text_input=STAGE_1_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
             STAGE_2 = Buttons(pos=(640, 400), text_input=STAGE_2_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
             STAGE_3 = Buttons(pos=(640, 550), text_input=STAGE_3_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
+            CLOSE = Buttons(pos=(640, 700), text_input=CLOSE_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
             self.screen.fill((0, 0, 0))
             self.screen.blit(SELECT_GAME_TEXT, SELECT_STAGE_MENU)
-            for button in [STAGE_1, STAGE_2, STAGE_3]:
+            for button in [STAGE_1, STAGE_2, STAGE_3, CLOSE]:
                 button.changeColor(MOUSE)
                 button.update(self.screen)
             for event in pg.event.get():
@@ -103,17 +74,19 @@ class Menu:
                     pg.quit()
                 if event.type == pg.MOUSEBUTTONDOWN:
                     if STAGE_1.checkForInput(MOUSE):
-                        self.isPlaying = True
                         self.stage_selected = self.stages.get("stage_1")
-                        Stage(self.stage_selected, self.font, self.screen, self.size).stage_run()
+                        stage = Stage(self.stage_selected, self.font, self.screen, self.size).stage_run()
+                        self.is_game_select = False
                     if STAGE_2.checkForInput(MOUSE):
-                        self.isPlaying = True
                         self.stage_selected = self.stages.get("stage_2")
-                        Stage(self.stage_selected, self.font, self.screen, self.size).stage_run()
+                        stage = Stage(self.stage_selected, self.font, self.screen, self.size).stage_run()
+                        self.is_game_select = False
                     if STAGE_3.checkForInput(MOUSE):
-                        self.isPlaying = True
                         self.stage_selected = self.stages.get("stage_3")
-                        Stage(self.stage_selected, self.font, self.screen, self.size).stage_run()
+                        stage = Stage(self.stage_selected, self.font, self.screen, self.size).stage_run()
+                        self.is_game_select = False
+                    if CLOSE.checkForInput(MOUSE):
+                        self.is_game_select = False
             pg.display.update()            
 
     def options(self):

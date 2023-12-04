@@ -32,6 +32,7 @@ STAGE_2_TEXT= "STAGE 2"
 STAGE_3_TEXT= "STAGE 3"
 OPTION_MENU_TEXT= "option menu"
 GAME_PAUSE_TEXT= "Game Paused"
+YOU_WIN = "YOU WIN"
 ##################### SOUNDS CONFIGS #####################
 SOUND_PATH = './sounds/'
 ENEMY_DF_SFX = SOUND_PATH + 'PG_EPIC_ENEMY_KILL.mp3'
@@ -41,6 +42,7 @@ DEATH_SFX = SOUND_PATH + 'PG_GAME_OVER.mp3'
 DAMAGE_SFX = SOUND_PATH + 'PG_DAMAGE.mp3'
 WIN_SFX = SOUND_PATH + 'PG_GG_EZ_WP.mp3'
 WIN_VOCAL_SFX = SOUND_PATH + 'PG_VICTORY.mp3'
+PG_LASER_SFX = SOUND_PATH + 'PG_LASER.mp3'
 ##################### IMAGE CONFIGS #####################
 IMAGE_PATH = './images/'
 LOGO_IMG = IMAGE_PATH + 'logo.png'

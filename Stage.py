@@ -4,6 +4,7 @@ from Player import Player
 from Enemy import Enemy
 from Fruit import Fruit
 from Tile import Tile
+from Buttons import Buttons
 from functions import draw_text
 from constants import *
 
@@ -34,6 +35,7 @@ class Stage:
 
         #   Atributos de clase Enemigos, Jugador, Tiles y Frutas
         self.player =  Player(self.stage.get("player")) 
+        self.score = 0
         
         self.sprites = pg.sprite.Group()
         self.enemy = pg.sprite.Group()
@@ -92,6 +94,49 @@ class Stage:
                 self.add_sprite(tile)
                 self.add_tile(tile)
 
+    def set_pause(self):
+        while self.isPause:
+            MOUSE = pg.mouse.get_pos()
+            MENU_TEXT = self.font.render(GAME_PAUSE_TEXT, True, PRIMARY_ACCENT)
+            MENU_RECT = MENU_TEXT.get_rect(topleft=(20, 20))
+            RESUME_BUTTON = Buttons(pos=(640, 250), text_input=RESUME_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
+            MAIN_MENU_BUTTON = Buttons(pos=(640, 550), text_input=MAIN_MENU_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
+            self.screen.fill((0, 0, 0))
+            self.screen.blit(MENU_TEXT, MENU_RECT)
+            for button in [RESUME_BUTTON, MAIN_MENU_BUTTON]:
+                button.changeColor(MOUSE)
+                button.update(self.screen)
+                for event in pg.event.get():
+                    if event.type == pg.QUIT:
+                        pg.quit()
+                        sys.exit()
+                    if event.type == pg.KEYDOWN:
+                        if event.key == pg.K_p:
+                            self.is_pause = False
+                    if event.type == pg.MOUSEBUTTONDOWN:
+                        if RESUME_BUTTON.checkForInput(MOUSE):
+                            self.is_paused = False
+                        if MAIN_MENU_BUTTON.checkForInput(MOUSE):
+                            self.is_playing = False
+            pg.display.flip()
+
+    def are_ya_winning_son(self):
+        while self.win:
+            self.screen.fill((0,0,0))
+            draw_text(self.font, YOU_WIN, TEXT_COLOR, self.screen, SCREEN_WIDTH//2-150, SCREEN_HEIGHT//2 - 300)
+            draw_text(self.font, f"Score: {self.score}", TEXT_COLOR, self.screen, SCREEN_WIDTH//2-180, SCREEN_HEIGHT//2)
+            draw_text(self.font, f"Press SPACE to return to menu", TEXT_COLOR, self.screen, SCREEN_WIDTH//2-600, SCREEN_HEIGHT//2 + 100)
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                    pg.exit()
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_SPACE:
+                        self.bg_sfx.stop()
+                        self.is_playing = False
+                        self.win = False
+            pg.display.update()
+
     def event_handler(self):
         for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -100,7 +145,7 @@ class Stage:
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_p:
                         self.is_paused = not self.is_paused
-
+        
         #   Comprobamos si los enemigos colisionan con las balas de jugador
         for bullet in self.player.bullet_group:
             for enemy in self.enemy:
@@ -109,9 +154,13 @@ class Stage:
                     bullet.kill()
                     if not enemy.is_alive:
                         enemy.kill()
+                        self.score += enemy.base_score_value
                         self.enemy_counter -= 1
                         self.enemy_k_sfx.play()
-        
+            for tile in self.tile:
+                if bullet.rect.colliderect(tile.rect):
+                    bullet.kill()
+
         #   Comprobamos si el jugador colisiona con la fruta
         for fruit in self.fruit:
             if fruit.rect.colliderect(self.player):
@@ -123,11 +172,10 @@ class Stage:
         for enemy in self.enemy:
             if enemy.rect.colliderect(self.player):
                 # now = pg.time.get_ticks()
-                self.player.get_damage(enemy)
+                self.player.get_damage(enemy, self.damage_sfx)
                 if not self.player.is_alive:
                     self.player.kill()
-                    self.death_sfx.play()
-        
+
         #   Comprobamos las colisiones del jugador con respecto a las plataformas
         for tile in self.tile:
             if self.player.rect.colliderect(tile):
@@ -144,6 +192,14 @@ class Stage:
                 #   Colision del lado de la derecha de la plataforma
                 if tile.rect.right - self.player.rect.left < 0:
                     self.player.rect.x, self.player.rect.y = self.player.rect.x, tile.rect.right 
+
+        #   Comprobamos si se completo el juego
+        if len(self.enemy) == 0 and not self.win:
+            self.win = True
+            self.win_sfx.play()
+            pg.time.delay(200)
+            self.win_vocal_sfx.play()
+            self.are_ya_winning_son()
 
     def render_handler(self, ticks):
             #   Generamos el fondo de pantalla

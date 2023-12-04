@@ -1,7 +1,7 @@
 import pygame as pg
 from Projectile import Projectile
 from auxiliar import SurfaceManager as sf
-from constants import SCREEN_WIDTH, DEBUG, SCREEN_HEIGHT
+from constants import SCREEN_WIDTH, DEBUG, SCREEN_HEIGHT, DAMAGE_SFX, PG_LASER_SFX
 
 class Player(pg.sprite.Sprite):
     def __init__(self, player_data):
@@ -26,6 +26,9 @@ class Player(pg.sprite.Sprite):
         self.rect = self.image.get_rect(center = self.location)
         self.is_looking_right = True
 
+        #   Control de sonidos
+        self.laser_sfx = pg.mixer.Sound(PG_LASER_SFX)
+
         #   Valores del jugador
         self.move_x = player_data.get("coord_x")
         self.move_y = player_data.get("coord_y")
@@ -35,10 +38,6 @@ class Player(pg.sprite.Sprite):
         self.gravity = player_data.get("gravity")
         self.jump_strenght = player_data.get("jump")
         self.life = player_data.get("life")
-        self.last_damage = pg.time.get_ticks()
-        self.damage_cooldown = player_data.get("damage_cooldown") 
-        self.time_damage = 0
-        self.invensible = False
         self.is_alive = True
         self.isOnFloor = False
         self.is_jumping = False
@@ -101,17 +100,21 @@ class Player(pg.sprite.Sprite):
     def extra_life(self):
         self.life += 1
     #   Jugador recibe danio
-    def get_damage(self, entity):
-        self.time_damage = pg.time.get_ticks()
-        if not self.invensible:
-            if entity.rect.colliderect(self.rect):
-                self.life -= 1
-                self.invensible = True
-                self.last_damage = pg.time.get_ticks()
-                if self.last_damage - self.time_damage >= self.damage_cooldown:
-                    self.invensible = False
+    def get_damage(self, entity, sound):
+        if entity.rect.colliderect(self.rect):
+            self.life -= 2
+            if self.life == 350:
+                sound.play(0)
+            elif self.life == 250:
+                sound.play(0)
+            elif self.life == 150:
+                sound.play(0)
+            elif self.life == 0:
+                self.is_alive = False
+        print(self.life)
     #   El jugador dispara
     def attack(self):
+        self.laser_sfx.play()
         self.bullet_group.add(self.create_bullet())
     #   Crea una bala con el consturctor de Projectile
     def create_bullet(self):
