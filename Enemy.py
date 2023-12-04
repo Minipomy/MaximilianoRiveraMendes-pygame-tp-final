@@ -40,6 +40,7 @@ class Enemy(pg.sprite.Sprite):
         if self.is_boss:
             self.life *= 2
             self.speed_run *= 2
+            self.base_score_value *= 15
     
             # Imagenes del enemigo segun estado
             self.iddle_r = sf.get_surface_from_spritesheet(enemy_data.get("idle"), 9, 1)

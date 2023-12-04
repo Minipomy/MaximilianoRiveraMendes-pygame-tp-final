@@ -206,8 +206,9 @@ class Stage:
             self.screen.blit(self.image, (0, 0))            
             #   Generamos contador de tiempo en stage
             seconds = int((pg.time.get_ticks() - ticks)/1000)
-            draw_text(self.font, "Time: ", (255, 255, 255), self.screen, 20, 20)
-            draw_text(self.font, str(seconds),(255, 255, 255), self.screen, 200, 20)
+            draw_text(self.font, f"Time: {str(seconds)} ", PRIMARY_ACCENT, self.screen, 20, 20)
+            # draw_text(self.font, str(seconds),PRIMARY_ACCENT, self.screen, 200, 20)
+            draw_text(self.font, f"Score: {self.score}", PRIMARY_ACCENT, self.screen, 20, 60)
             self.sprites.update(self.delta_ms)
 
     def elements_handler(self):
