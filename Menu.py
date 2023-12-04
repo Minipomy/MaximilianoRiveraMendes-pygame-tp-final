@@ -47,7 +47,6 @@ class Menu:
                         sys.exit()
                     if event.type == pg.MOUSEBUTTONDOWN:
                         if PLAY_BUTTON.checkForInput(MOUSE):
-                            # self.isPlaying = True
                             self.game_select()
                         if OPTIONS_BUTTON.checkForInput(MOUSE):
                             self.options()
@@ -59,7 +58,7 @@ class Menu:
     def set_pause(self):
         while self.isPause:
             MOUSE = pg.mouse.get_pos()
-            MENU_TEXT = self.font.render("Game Paused", True, PRIMARY_ACCENT)
+            MENU_TEXT = self.font.render(GAME_PAUSE_TEXT, True, PRIMARY_ACCENT)
             MENU_RECT = MENU_TEXT.get_rect(topleft=(20, 20))
             RESUME_BUTTON = Buttons(pos=(640, 250), text_input=RESUME_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
             OPTIONS_BUTTON = Buttons(pos=(640, 400), text_input=OPTIONS_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
@@ -89,11 +88,11 @@ class Menu:
     def game_select(self):
         while True:
             MOUSE = pg.mouse.get_pos()
-            SELECT_GAME_TEXT = self.font.render("Select Stage", True, PRIMARY_ACCENT)
+            SELECT_GAME_TEXT = self.font.render(SELECT_STAGE_TEXT, True, PRIMARY_ACCENT)
             SELECT_STAGE_MENU = SELECT_GAME_TEXT.get_rect(topleft=(20, 20))
-            STAGE_1 = Buttons(pos=(140, 150), text_input="STAGE 1", font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
-            STAGE_2 = Buttons(pos=(440, 350), text_input="STAGE 2", font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
-            STAGE_3 = Buttons(pos=(140, 440), text_input="STAGE 3", font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
+            STAGE_1 = Buttons(pos=(640, 250), text_input=STAGE_1_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
+            STAGE_2 = Buttons(pos=(640, 400), text_input=STAGE_2_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
+            STAGE_3 = Buttons(pos=(640, 550), text_input=STAGE_3_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
             self.screen.fill((0, 0, 0))
             self.screen.blit(SELECT_GAME_TEXT, SELECT_STAGE_MENU)
             for button in [STAGE_1, STAGE_2, STAGE_3]:
@@ -120,7 +119,7 @@ class Menu:
     def options(self):
         while True:
             self.screen.fill((0,0,0))
-            self.draw_text('option menu',(255, 255, 255), self.screen, 20, 20)
+            self.draw_text(OPTION_MENU_TEXT,TEXT_COLOR, self.screen, 20, 20)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     pg.quit()

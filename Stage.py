@@ -5,7 +5,7 @@ from Enemy import Enemy
 from Fruit import Fruit
 from Tile import Tile
 from functions import draw_text
-from constants import SCREEN_HEIGHT, SCREEN_WIDTH, FPS, DEBUG
+from constants import *
 
 class Stage:
     def __init__(self, stage_data, font, screen, size):
@@ -14,12 +14,23 @@ class Stage:
         self.screen = screen
         self.size = size
         self.font = font
-#        pg.font.init()
+        #pg.font.init()
         self.background = self.stage.get("BG_img")
         self.image = pg.transform.scale(pg.image.load(self.background), self.size)
         self.clock = pg.time.Clock()
         self.delta_ms = self.clock.tick(FPS)
-        self.isPlaying = True
+        self.is_playing = True
+        self.is_paused = False
+        self.win = False
+
+        #   Control de audio
+        self.bg_sfx = pg.mixer.Sound(BG_SFX)
+        self.collected_sfx = pg.mixer.Sound(COLLECT_SFX)
+        self.damage_sfx = pg.mixer.Sound(DAMAGE_SFX)
+        self.enemy_k_sfx = pg.mixer.Sound(ENEMY_DF_SFX)
+        self.death_sfx = pg.mixer.Sound(DEATH_SFX)
+        self.win_sfx = pg.mixer.Sound(WIN_SFX)
+        self.win_vocal_sfx = pg.mixer.Sound(WIN_VOCAL_SFX)
 
         #   Atributos de clase Enemigos, Jugador, Tiles y Frutas
         self.player =  Player(self.stage.get("player")) 
@@ -33,7 +44,13 @@ class Stage:
         self.tile_counter = self.stage.get("tile_count")
         self.fruit_counter = self.stage.get("fruit_count")
         self.add_sprite(self.player)        
-        
+
+        if self.is_playing:
+            self.bg_sfx.play(-1)
+            self.generate_enemies(self.enemy_counter)
+            self.generate_fruits(self.fruit_counter)
+            self.generate_tiles(self.tile_counter)
+
     def add_sprite(self, sprite):
         self.sprites.add(sprite) 
 
@@ -55,22 +72,22 @@ class Stage:
                 pg.draw.line(self.screen, WHITE, (line * tile_size, 0), (line * tile_size, SCREEN_HEIGHT))
 
     def generate_fruits(self, counter):
-        if len(self.fruit) == 0:
+        if len(self.fruit) == 0 and not self.win:
             for index in range(counter):
                 fruit = Fruit(self.stage.get("fruit"), self.stage.get("fruit_pos")[index])
                 self.add_sprite(fruit)
                 self.add_fruit(fruit)
 
     def generate_enemies(self, counter):
-        if len(self.enemy) == 0:
+        if len(self.enemy) == 0 and not self.win:
             for index in range(counter):
                 enemy = Enemy(self.stage.get("enemy"), self.stage.get("enemy_pos")[index])
                 self.add_sprite(enemy)
                 self.add_enemy(enemy)
 
     def generate_tiles(self, counter):
-        if len(self.tile) == 0:
-            for index in range(0,counter-1):
+        if len(self.tile) == 0 and not self.win:
+            for index in range(counter):
                 tile = Tile(self.stage.get("tile"), self.stage.get("tiles_pos")[index])
                 self.add_sprite(tile)
                 self.add_tile(tile)
@@ -82,9 +99,7 @@ class Stage:
                     sys.exit()
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_p:
-                        self.isPause = True
-                        self.isPlaying = False
-                        self.set_pause()
+                        self.is_paused = not self.is_paused
 
         #   Comprobamos si los enemigos colisionan con las balas de jugador
         for bullet in self.player.bullet_group:
@@ -94,13 +109,15 @@ class Stage:
                     bullet.kill()
                     if not enemy.is_alive:
                         enemy.kill()
-                        enemy.remove()
+                        self.enemy_counter -= 1
+                        self.enemy_k_sfx.play()
         
         #   Comprobamos si el jugador colisiona con la fruta
         for fruit in self.fruit:
             if fruit.rect.colliderect(self.player):
                 fruit.kill()
-                self.player.extra_life() 
+                self.player.extra_life()
+                self.collected_sfx.play()
 
         #   Comprobamos si el jugador colisiona con el enemigo
         for enemy in self.enemy:
@@ -109,6 +126,7 @@ class Stage:
                 self.player.get_damage(enemy)
                 if not self.player.is_alive:
                     self.player.kill()
+                    self.death_sfx.play()
         
         #   Comprobamos las colisiones del jugador con respecto a las plataformas
         for tile in self.tile:
@@ -130,34 +148,24 @@ class Stage:
     def render_handler(self, ticks):
             #   Generamos el fondo de pantalla
             self.screen.blit(self.image, (0, 0))            
-            
             #   Generamos contador de tiempo en stage
             seconds = int((pg.time.get_ticks() - ticks)/1000)
             draw_text(self.font, "Time: ", (255, 255, 255), self.screen, 20, 20)
             draw_text(self.font, str(seconds),(255, 255, 255), self.screen, 200, 20)
             self.sprites.update(self.delta_ms)
-            # self.player.update(self.delta_ms)
-            # self.enemy.update(self.delta_ms)
-            # self.fruit.update(self.delta_ms)
 
     def elements_handler(self):
-        self.generate_enemies(self.enemy_counter)
-        self.generate_fruits(self.fruit_counter)
-        self.generate_tiles(self.tile_counter)
         #   Agregamos los sprites al stage
         self.sprites.draw(self.screen)
         self.player.bullet_group.draw(self.screen)
-        # self.player.draw(self.screen)
-        # self.enemy.draw(self.screen)
-        # self.fruit.draw(self.screen)
 
     def stage_run(self):
-        start_ticks = int(pg.time.get_ticks())
-        while self.isPlaying:
-            self.event_handler()
-            self.render_handler(start_ticks)
-            self.elements_handler()
-            #   Actualizacion de pantalla
-            self.draw_grid()
-            pg.display.flip()
-            self.clock.tick(FPS)
+            start_ticks = pg.time.get_ticks()
+            while self.is_playing:
+                self.event_handler()
+                self.render_handler(start_ticks)
+                self.elements_handler()
+                #   Actualizacion de pantalla
+                self.draw_grid()
+                pg.display.flip()
+                self.clock.tick(FPS)

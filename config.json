@@ -24,7 +24,7 @@
                     "size_x": 15,
                     "size_y": 12
                 },
-                "player_pos": [200, 200]
+                "player_pos": [50, 680]
             },
             "enemy": {
                 "idle": "Recursos/Enemies/AngryPig/Idle (36x30).png",
@@ -36,20 +36,20 @@
                 "gravity": 16,
                 "frame_rate": 60
             },
-            "enemy_pos": [[200, 200]],
+            "enemy_pos": [[1200, 680]],
             "tile": {
                 "tile_img": "Recursos/Terrain/Dirt/0.png",
                 "pos_x": 0,
                 "pos_y": 0
             },
-            "tiles_pos": [[200, 200]],
+            "tiles_pos": [[600, 680]],
             "fruit": {
                 "fruit_img": "Recursos/Items/Fruits/Cherries.png",
                 "pos_x": 150,
                 "pos_y": 200,
                 "frame_rate": 60
             },
-            "fruit_pos": [[300, 300]]
+            "fruit_pos": [[600, 600]]
         },
         "stage_2": {
             "BG_img": "Recursos/Background/BG_Stage_2.jpg",
@@ -75,7 +75,7 @@
                     "size_x": 15,
                     "size_y": 12
                 },
-                "player_pos": [200, 200]
+                "player_pos": [50, 600]
             },
             "enemy": {
                 "idle": "Recursos/Enemies/AngryPig/Idle (36x30).png",
@@ -87,20 +87,20 @@
                 "gravity": 16,
                 "frame_rate": 60
             },
-            "enemy_pos": [[200, 200], [500, 500], [350, 350]],
+            "enemy_pos": [[300, 520], [500, 520], [700, 520]],
             "tile": {
                 "tile_img": "Recursos/Terrain/Dirt/0.png",
                 "pos_x": 0,
                 "pos_y": 0
             },
-            "tiles_pos": [[200, 200], [500, 500], [350, 350]],
+            "tiles_pos": [[300, 550], [500, 550], [700, 550]],
             "fruit": {
                 "fruit_img": "Recursos/Items/Fruits/Cherries.png",
                 "pos_x": 150,
                 "pos_y": 200,
                 "frame_rate": 60
             },
-            "fruit_pos": [[200, 200], [350, 350]]
+            "fruit_pos": [[300, 450], [700, 450]]
         },
         "stage_3": {
             "BG_img": "Recursos/Background/BG_Stage_3.jpg",
@@ -126,7 +126,7 @@
                     "size_x": 15,
                     "size_y": 12
                 },
-                "player_pos": [200, 200]
+                "player_pos": [50, 600]
             },
             "enemy": {
                 "idle": "Recursos/Enemies/AngryPig/Idle (36x30).png",
@@ -139,20 +139,20 @@
                 "frame_rate": 60,
                 "is_boss": true
             },
-            "enemy_pos": [[200, 200]],
+            "enemy_pos": [[1200, 680]],
             "tile": {
                 "tile_img": "Recursos/Terrain/Dirt/0.png",
                 "pos_x": 0,
                 "pos_y": 0
             },
-            "tiles_pos": [[200, 200]],
+            "tiles_pos": [[600, 680]],
             "fruit": {
                 "fruit_img": "Recursos/Items/Fruits/Cherries.png",
                 "pos_x": 150,
                 "pos_y": 200,
                 "frame_rate": 60
             },
-            "fruit_pos": [[300, 300]]
+            "fruit_pos": [[600, 600]]
         }
     }
 }
