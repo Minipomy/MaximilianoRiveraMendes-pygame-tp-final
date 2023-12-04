@@ -5,7 +5,7 @@ from Enemy import Enemy
 from Fruit import Fruit
 from Tile import Tile
 from functions import draw_text
-from constants import SCREEN_HEIGHT, SCREEN_WIDTH, FPS
+from constants import SCREEN_HEIGHT, SCREEN_WIDTH, FPS, DEBUG
 
 class Stage:
     def __init__(self, stage_data, font, screen, size):
@@ -45,6 +45,14 @@ class Stage:
     
     def add_fruit(self, fruit):
         self.fruit.add(fruit)
+
+    def draw_grid(self):
+        if DEBUG:
+            tile_size = 47
+            WHITE = (255, 255, 255)
+            for line in range(0,29):
+                pg.draw.line(self.screen, WHITE, (0, line * tile_size), (SCREEN_WIDTH, line * tile_size))
+                pg.draw.line(self.screen, WHITE, (line * tile_size, 0), (line * tile_size, SCREEN_HEIGHT))
 
     def generate_fruits(self, counter):
         if len(self.fruit) == 0:
@@ -101,6 +109,23 @@ class Stage:
                 self.player.get_damage(enemy)
                 if not self.player.is_alive:
                     self.player.kill()
+        
+        #   Comprobamos las colisiones del jugador con respecto a las plataformas
+        for tile in self.tile:
+            if self.player.rect.colliderect(tile):
+                #   Colision Pies y base
+                if tile.rect.top - self.player.rect.bottom < 0:
+                    self.player.rect.x, self.player.rect.y = self.player.rect.x, tile.rect.top
+                    self.player.is_jumping = False  
+                #   Colision Cabeza y base
+                if tile.rect.bottom - self.player.rect.top < 0:
+                    self.player.rect.x, self.player.rect.y = self.player.rect.x, tile.rect.bottom  
+                #   Colision del lado de la izquierda de la plataforma
+                if tile.rect.left - self.player.rect.right < 0:
+                    self.player.rect.x, self.player.rect.y = self.player.rect.x, tile.rect.left  
+                #   Colision del lado de la derecha de la plataforma
+                if tile.rect.right - self.player.rect.left < 0:
+                    self.player.rect.x, self.player.rect.y = self.player.rect.x, tile.rect.right 
 
     def render_handler(self, ticks):
             #   Generamos el fondo de pantalla
@@ -133,5 +158,6 @@ class Stage:
             self.render_handler(start_ticks)
             self.elements_handler()
             #   Actualizacion de pantalla
+            self.draw_grid()
             pg.display.flip()
             self.clock.tick(FPS)

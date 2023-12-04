@@ -149,13 +149,7 @@ class Player(pg.sprite.Sprite):
                 self.rect.y += self.gravity
             if self.rect.y < SCREEN_HEIGHT - self.image.get_height():
                 self.rect.y += self.gravity
-    def is_on_platform(self, tile):
-        self.isOnFloor = False
-        if self.rect.top == tile.rect.bottom:
-            self.rect.y += 0
-        elif self.rect.bottom == tile.rect.top:
-            self.rect.y += tile.rect.x
-            self.isOnFloor = True
+
     #   Limitacion de FPS 
     def do_animation(self, delta_ms):
         self.player_animation_time += delta_ms

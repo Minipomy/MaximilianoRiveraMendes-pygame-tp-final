@@ -1,6 +1,6 @@
 
 ##################### DEBUG CONFIGS #####################
-DEBUG = False
+DEBUG = True
 ##################### CONFIGURATION FILE #####################
 DATA = "config.json"
 ##################### FONT FILE #####################

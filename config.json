@@ -38,7 +38,7 @@
             },
             "enemy_pos": [[200, 200]],
             "tile": {
-                "tile_img": "Recursos/Menu/Text/Text (White) (8x10).png",
+                "tile_img": "Recursos/Terrain/Dirt/0.png",
                 "pos_x": 0,
                 "pos_y": 0
             },
@@ -89,7 +89,7 @@
             },
             "enemy_pos": [[200, 200], [500, 500], [350, 350]],
             "tile": {
-                "tile_img": "Recursos/Menu/Text/Text (White) (8x10).png",
+                "tile_img": "Recursos/Terrain/Dirt/0.png",
                 "pos_x": 0,
                 "pos_y": 0
             },
@@ -141,7 +141,7 @@
             },
             "enemy_pos": [[200, 200]],
             "tile": {
-                "tile_img": "Recursos/Menu/Text/Text (White) (8x10).png",
+                "tile_img": "Recursos/Terrain/Dirt/0.png",
                 "pos_x": 0,
                 "pos_y": 0
             },
