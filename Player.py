@@ -40,6 +40,7 @@ class Player(pg.sprite.Sprite):
         self.gravity = player_data.get("gravity")
         self.jump_strenght = player_data.get("jump")
         self.life = player_data.get("life")
+        self.life_counter = 3
         self.is_alive = True
         self.isOnFloor = False
         self.is_jumping = False
@@ -101,17 +102,21 @@ class Player(pg.sprite.Sprite):
     #   Jugador recibe vida
     def extra_life(self):
         self.life += 50
+        self.life_counter += 1
     #   Jugador recibe danio
     def get_damage(self, entity, sound, screen, font):
         if entity.rect.colliderect(self.rect):
             self.life -= 2
             if self.life == 350:
+                self.life_counter -= 1
                 draw_text(font, "2 HP", PRIMARY_ACCENT, screen, self.rect.top - 20, self.rect.y)
                 sound.play(0).set_volume(self.volume)
             elif self.life == 250:
+                self.life_counter -= 1
                 draw_text(font, "1 HP", PRIMARY_ACCENT, screen, self.rect.top - 20, self.rect.y)
                 sound.play(0).set_volume(self.volume)
             elif self.life == 150:
+                self.life_counter -= 1
                 draw_text(font, "0 HP", PRIMARY_ACCENT, screen, self.rect.top - 20, self.rect.y)
                 sound.play(0).set_volume(self.volume)
             elif self.life == 0:

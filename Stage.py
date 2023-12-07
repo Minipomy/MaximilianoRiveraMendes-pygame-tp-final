@@ -1,12 +1,13 @@
 import pygame as pg
 import sys
 import re
+import json as js
 from Player import Player
 from Enemy import Enemy
 from Fruit import Fruit
 from Tile import Tile
 from Buttons import Buttons
-from functions import draw_text
+from functions import *
 from DML import *
 from constants import *
 
@@ -20,6 +21,7 @@ class Stage:
         self.volume = volume
         #pg.font.init()
         self.background = self.stage.get("BG_img")
+        self.highscore = load_score()
         self.image = pg.transform.scale(pg.image.load(self.background), self.size)
         self.clock = pg.time.Clock()
         self.delta_ms = self.clock.tick(FPS)
@@ -126,11 +128,14 @@ class Stage:
                             self.bg_sfx.stop()
             pg.display.flip()
     def set_winner(self):
+        count = 0
         while self.winner:
             self.screen.fill((0,0,0))
             draw_text(self.font, YOU_WIN, TEXT_COLOR, self.screen, SCREEN_WIDTH//2-150, SCREEN_HEIGHT//2 - 300)
             draw_text(self.font, f"Score: {self.score}", TEXT_COLOR, self.screen, SCREEN_WIDTH//2-180, SCREEN_HEIGHT//2)
             draw_text(self.font, f"Press SPACE to return to menu", TEXT_COLOR, self.screen, SCREEN_WIDTH//2-600, SCREEN_HEIGHT//2 + 100)
+            if count == 0:
+                guarda_score(self.highscore, self.score)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     pg.quit()
@@ -140,6 +145,7 @@ class Stage:
                         self.bg_sfx.stop()
                         self.winner = False
                         self.play = False
+            count = 1
             pg.display.update()
     def set_game_over(self):
         while self.over:
@@ -168,18 +174,11 @@ class Stage:
         self.generate_fruits(self.fruit_counter)
         self.generate_tiles(self.tile_counter)
         self.score = 0
+        self.over = False
         self.play = True
         self.bg_sfx.play(-1).set_volume(self.volume)
         self.stage_run()
-    def save_score(self):
-        nombre = input("Ingrese su nombre (solo 3 letras o números): ")
-        while not re.match(r'^[a-zA-Z0-9]{3}$', nombre):
-            print("El nombre debe tener exactamente 3 letras o números.")
-            nombre = input("Ingrese su nombre (solo 3 letras o números): ")
-        instruccion = "INSERT INTO jugadores (nombre, puntaje) VALUES (?,?)"
-        parametro = f'{nombre}, {self.score}'     
-        createTable()
-        insertRow(instruccion, parametro)
+
     #   </Windows Setters>
     #   <HANDLERS>
     def event_handler(self):
@@ -259,8 +258,9 @@ class Stage:
                 seconds = int((pg.time.get_ticks() - ticks)/1000)
                 self.countdown -= self.delta_ms / 1000
                 draw_text(self.font, f"Time: {seconds} ", PRIMARY_ACCENT, self.screen, 20, 20)
-                draw_text(self.font, f"Countdown: {self.countdown:.0f}", PRIMARY_ACCENT, self.screen, 20, 100)
                 draw_text(self.font, f"Score: {self.score}", PRIMARY_ACCENT, self.screen, 20, 60)
+                draw_text(self.font, f"Countdown: {self.countdown:.0f}", PRIMARY_ACCENT, self.screen, 20, 100)
+                draw_text(self.font, f"Life {self.player.life_counter}", PRIMARY_ACCENT, self.screen, 20, 140)
             self.sprites.update(self.delta_ms)
     def elements_handler(self):
         #   Agregamos los sprites al stage

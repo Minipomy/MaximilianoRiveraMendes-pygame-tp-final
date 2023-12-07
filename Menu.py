@@ -3,7 +3,7 @@ import pygame as pg
 import json as js
 from Stage import Stage
 from Buttons import Buttons
-from functions import draw_text
+from functions import *
 from constants import *
 
 class Menu:
@@ -26,11 +26,13 @@ class Menu:
         self.volume = 1.0
         pg.font.init()
 
+        self.highscore = 0
         #   Atributos de control de juego
         # self.is_game_select = False
         # self.is_in_option = False
 
     def main_menu(self, main_menu=True):
+        createTable()
         while main_menu:
             MOUSE = pg.mouse.get_pos()
             MENU_TEXT = self.font.render(MAIN_MENU_TEXT, True, PRIMARY_ACCENT)
@@ -40,6 +42,17 @@ class Menu:
             QUIT_BUTTON = Buttons(pos=(340, 550), text_input=CLOSE_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
             self.screen.fill((0, 0, 0))
             self.screen.blit(MENU_TEXT, MENU_RECT)
+            self.highscore = load_score()
+
+            y_pos = 250
+            draw_text(self.font, f"Highscore", PRIMARY_ACCENT, self.screen, SCREEN_WIDTH//2, 210)
+            for score in self.highscore:
+                # highscore.get("highscore")
+                nombre = score.get("nombre")
+                puntaje = score.get("puntaje")
+                mensaje = f"{nombre} {puntaje}"
+                y_pos += 40
+                draw_text(self.font, f"{mensaje}", TEXT_COLOR, self.screen, SCREEN_WIDTH//2, y_pos)
             for button in [PLAY_BUTTON, OPTIONS_BUTTON, QUIT_BUTTON]:
                 button.changeColor(MOUSE)
                 button.update(self.screen)
@@ -94,8 +107,10 @@ class Menu:
             MOUSE = pg.mouse.get_pos()
             CLOSE = Buttons(pos=(640, 700), text_input=CLOSE_TEXT, font=self.font, base_color=BUTTON_BASE_COLOR, hovering_color=HOVER_COLOR)
             self.screen.fill((0,0,0))
-            draw_text(self.font, OPTION_MENU_TEXT, TEXT_COLOR, self.screen, 20, 20)
-            draw_text(self.font, f"Volume value [{(self.volume * 100):.0F}]", TEXT_COLOR, self.screen, SCREEN_WIDTH//2-500, 450)
+            draw_text(self.font, OPTION_MENU_TEXT, PRIMARY_ACCENT, self.screen, 20, 20)
+            draw_text(self.font, f"Press - for Lower values", TEXT_COLOR, self.screen, SCREEN_WIDTH//2-450, SCREEN_HEIGHT//2-60)
+            draw_text(self.font, f"Volume value [{(self.volume * 100):.0F}]", TEXT_COLOR, self.screen, SCREEN_WIDTH//2-450, SCREEN_HEIGHT//2)
+            draw_text(self.font, f"Press = for Higher values", TEXT_COLOR, self.screen, SCREEN_WIDTH//2-450, SCREEN_HEIGHT//2+60)
             keys = pg.key.get_pressed()
             for button in [CLOSE]:
                 button.changeColor(MOUSE)
