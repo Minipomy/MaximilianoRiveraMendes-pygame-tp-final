@@ -39,7 +39,7 @@ class Stage:
 
 
         #   Atributos de clase Enemigos, Jugador, Tiles y Frutas
-        self.countdown = 10
+        self.countdown = 60
         self.player =  Player(self.stage.get("player"), self.volume) 
         self.score = 0
         
@@ -48,11 +48,17 @@ class Stage:
         self.tile = pg.sprite.Group()
         self.fruit = pg.sprite.Group()
 
+        self.minion_group = pg.sprite.Group()
+
         self.enemy_counter = self.stage.get("enemy_count")
         self.tile_counter = self.stage.get("tile_count")
         self.fruit_counter = self.stage.get("fruit_count")
         self.add_sprite(self.player)
         
+        self.enemy_time = 0
+        self.enemy_generation = 5000
+        self.ready = True
+
         #   Comprobamos estados del juego
         if self.play:
             self.bg_sfx.play(-1).set_volume(self.volume)
@@ -260,6 +266,19 @@ class Stage:
         #   Agregamos los sprites al stage
         self.sprites.draw(self.screen)
         self.player.bullet_group.draw(self.screen)
+        for enemy in self.enemy:
+            if enemy.is_boss and self.ready:
+                minion = Enemy(self.stage.get("enemy"), (enemy.rect.centerx, enemy.rect.centery - 50), True)
+                self.ready = False
+                self.enemy_time = pg.time.get_ticks()
+                self.add_enemy(minion)
+                self.add_sprite(minion)
+        self.recharge()
+    def recharge(self):
+        if not self.ready:
+            curent_time = pg.time.get_ticks()
+            if curent_time - self.enemy_time >= self.enemy_generation:
+                self.ready = True
     #   </HANDLERS>
     #   <Game_RUN>
     def stage_run(self):

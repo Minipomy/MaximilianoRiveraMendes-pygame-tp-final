@@ -1,10 +1,11 @@
 import random
 import pygame as pg
+from Projectile import Projectile
 from auxiliar import SurfaceManager as sf
-from constants import SCREEN_WIDTH, DEBUG, SCREEN_HEIGHT
+from constants import SCREEN_WIDTH, DEBUG, SCREEN_HEIGHT, BOSS_RUN, BOSS_IDLE
 
 class Enemy(pg.sprite.Sprite):
-    def __init__(self, enemy_data, location):
+    def __init__(self, enemy_data, location, minion:bool=False):
         super().__init__()
         
         # Imagenes del enemigo segun estado
@@ -15,6 +16,9 @@ class Enemy(pg.sprite.Sprite):
         
         #   Flag de Jefe 
         self.is_boss = enemy_data.get("is_boss")
+        self.is_minion = minion
+
+        self.enemy_data = enemy_data
 
         # Valores del enemigo 
         self.move_x = 0
@@ -42,6 +46,16 @@ class Enemy(pg.sprite.Sprite):
             self.life *= 2
             self.speed_run *= 2
             self.base_score_value *= 15
+            self.iddle_r = sf.get_surface_from_spritesheet(BOSS_IDLE, 11, 1)
+            self.iddle_l = sf.get_surface_from_spritesheet(BOSS_IDLE, 11, 1, flip=True)
+            self.run_r = sf.get_surface_from_spritesheet(BOSS_RUN, 6, 1)
+            self.run_l = sf.get_surface_from_spritesheet(BOSS_RUN, 6, 1, flip=True)
+
+        if self.is_minion:
+            self.is_boss = False
+            self.life = 1
+            self.speed_run = 6 
+            self.base_score_value = 20
     
             # Imagenes del enemigo segun estado
             self.iddle_r = sf.get_surface_from_spritesheet(enemy_data.get("idle"), 9, 1)
@@ -116,7 +130,6 @@ class Enemy(pg.sprite.Sprite):
             self.player_move_time = 0
             left_limit = 0
             right_limits = SCREEN_WIDTH - self.rect.width
-
             if self.rect.x <= left_limit:
                 self.direction = 1
             elif self.rect.x >= right_limits:
@@ -130,8 +143,7 @@ class Enemy(pg.sprite.Sprite):
         if self.direction == -1:
             self.actual_animation = self.run_r
         else:
-            self.actual_animation = self.run_l  
-
+            self.actual_animation = self.run_l
 
     #   Limitacion de FPS 
     def do_animation(self, delta_ms):
@@ -148,7 +160,6 @@ class Enemy(pg.sprite.Sprite):
             self.do_movement(delta_ms)
             self.do_animation(delta_ms)
             self.image = self.actual_animation[self.initial_frame]
-            
     
     # def draw(self, screen: pg.surface.Surface):
     #     if DEBUG:
