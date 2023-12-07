@@ -5,6 +5,7 @@
             "enemy_count": 1,
             "tile_count": 1,
             "fruit_count": 1,
+            "trap_count": 1,
             "player": {
                 "idle_img": "Recursos/Main Characters/Virtual Guy/Idle (32x32).png",
                 "run_img": "Recursos/Main Characters/Virtual Guy/Run (32x32).png",
@@ -49,13 +50,19 @@
                 "pos_y": 200,
                 "frame_rate": 60
             },
-            "fruit_pos": [[600, 600]]
+            "fruit_pos": [[600, 600]],
+            "trap": {
+                "trap_img": "Recursos/Traps/Fire/On (16x32).png",
+                "frame_rate": 60
+            },
+            "traps_pos": [[800, 710]]
         },
         "stage_2": {
             "BG_img": "Recursos/Background/BG_Stage_2.jpg",
             "enemy_count": 3,
             "tile_count": 3,
             "fruit_count": 2,
+            "trap_count": 0,
             "player": {
                 "idle_img": "Recursos/Main Characters/Virtual Guy/Idle (32x32).png",
                 "run_img": "Recursos/Main Characters/Virtual Guy/Run (32x32).png",
@@ -100,13 +107,19 @@
                 "pos_y": 200,
                 "frame_rate": 60
             },
-            "fruit_pos": [[300, 450], [700, 450]]
+            "fruit_pos": [[300, 450], [700, 450]],
+            "trap": {
+                "trap_img": "Recursos/Traps/Fire/On (16x32).png",
+                "frame_rate": 60
+            },
+            "traps_pos": [[600, 600]]
         },
         "stage_3": {
             "BG_img": "Recursos/Background/BG_Stage_3.jpg",
             "enemy_count": 1,
             "tile_count": 1,
             "fruit_count": 1,
+            "trap_count": 0,
             "player": {
                 "idle_img": "Recursos/Main Characters/Virtual Guy/Idle (32x32).png",
                 "run_img": "Recursos/Main Characters/Virtual Guy/Run (32x32).png",
@@ -152,7 +165,12 @@
                 "pos_y": 200,
                 "frame_rate": 60
             },
-            "fruit_pos": [[600, 600]]
+            "fruit_pos": [[600, 600]],
+            "trap": {
+                "trap_img": "Recursos/Traps/Fire/On (16x32).png",
+                "frame_rate": 60
+            },
+            "traps_pos": [[600, 600]]
         }
     }
 }

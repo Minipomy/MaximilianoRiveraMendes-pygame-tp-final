@@ -6,6 +6,7 @@ from Player import Player
 from Enemy import Enemy
 from Fruit import Fruit
 from Tile import Tile
+from Traps import Traps
 from Buttons import Buttons
 from functions import *
 from DML import *
@@ -49,12 +50,13 @@ class Stage:
         self.enemy = pg.sprite.Group()
         self.tile = pg.sprite.Group()
         self.fruit = pg.sprite.Group()
-
+        self.trap = pg.sprite.Group()
         self.minion_group = pg.sprite.Group()
 
         self.enemy_counter = self.stage.get("enemy_count")
         self.tile_counter = self.stage.get("tile_count")
         self.fruit_counter = self.stage.get("fruit_count")
+        self.trap_counter = self.stage.get("trap_count")
         self.add_sprite(self.player)
         
         self.enemy_time = 0
@@ -67,6 +69,7 @@ class Stage:
             self.generate_enemies(self.enemy_counter)
             self.generate_fruits(self.fruit_counter)
             self.generate_tiles(self.tile_counter)
+            self.generate_traps(self.trap_counter)
 
     #   <Sprites_ADD>
     def add_sprite(self, sprite):
@@ -77,6 +80,8 @@ class Stage:
         self.tile.add(tile)
     def add_fruit(self, fruit):
         self.fruit.add(fruit)
+    def add_trap(self, trap):
+        self.trap.add(trap)
     #   </Sprites_ADD>
     #   <Sprites_GEN>
     def generate_fruits(self, counter):
@@ -97,6 +102,12 @@ class Stage:
                 tile = Tile(self.stage.get("tile"), self.stage.get("tiles_pos")[index])
                 self.add_sprite(tile)
                 self.add_tile(tile)
+    def generate_traps(self, counter):
+        if len(self.trap) == 0:
+            for index in range(counter):
+                trap = Traps(self.stage.get("trap"), self.stage.get("traps_pos")[index])
+                self.add_sprite(trap)
+                self.add_trap(trap)
     #   </Sprites_GEN>
     #   <Windows Setters>
     def set_pause(self):
@@ -161,6 +172,7 @@ class Stage:
                     if event.key == pg.K_SPACE:
                         self.bg_sfx.stop()
                         self.play = False
+                        self.winner = False
                         self.restart_game()
             pg.display.update()
     def restart_game(self):
@@ -168,11 +180,13 @@ class Stage:
         self.enemy.empty()
         self.fruit.empty()
         self.tile.empty()
+        self.trap.empty()
         self.player =  Player(self.stage.get("player"), self.volume) 
         self.add_sprite(self.player)
         self.generate_enemies(self.enemy_counter)
         self.generate_fruits(self.fruit_counter)
         self.generate_tiles(self.tile_counter)
+        self.generate_traps(self.trap_counter)
         self.score = 0
         self.over = False
         self.play = True
@@ -222,12 +236,21 @@ class Stage:
                     self.over = True
                     self.set_game_over()
 
+        #   Comprobamos si el jugador colisiona con una trampa
+        for trap in self.trap:
+            if trap.rect.colliderect(self.player):
+                self.player.get_damage(trap, self.damage_sfx, self.screen, self.font)
+                if not self.player.is_alive:
+                    self.player.kill()
+                    self.over = True
+                    self.set_game_over()
+
         #   Comprobamos las colisiones del jugador con respecto a las plataformas
         for tile in self.tile:
             if self.player.rect.colliderect(tile):
                 #   Colision Pies y base
                 if tile.rect.top - self.player.rect.bottom < 0:
-                    self.player.rect.x, self.player.rect.y = self.player.rect.x, tile.rect.top
+                    self.player.rect.x, self.player.rect.y = self.player.rect.x, tile.rect.top -20
                     self.player.is_jumping = False  
                 #   Colision Cabeza y base
                 if tile.rect.bottom - self.player.rect.top < 0:
