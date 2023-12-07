@@ -1,6 +1,6 @@
 
 ##################### DEBUG CONFIGS #####################
-DEBUG = True
+DEBUG = False
 ##################### CONFIGURATION FILE #####################
 DATA = "config.json"
 ##################### FONT FILE #####################
@@ -33,6 +33,7 @@ STAGE_3_TEXT= "STAGE 3"
 OPTION_MENU_TEXT= "option menu"
 GAME_PAUSE_TEXT= "Game Paused"
 YOU_WIN = "YOU WIN"
+YOU_LOOSE = 'YOU LOOSE'
 ##################### SOUNDS CONFIGS #####################
 SOUND_PATH = './sounds/'
 ENEMY_DF_SFX = SOUND_PATH + 'PG_EPIC_ENEMY_KILL.mp3'

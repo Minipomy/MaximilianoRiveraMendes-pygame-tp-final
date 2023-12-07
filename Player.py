@@ -1,10 +1,11 @@
 import pygame as pg
 from Projectile import Projectile
 from auxiliar import SurfaceManager as sf
-from constants import SCREEN_WIDTH, DEBUG, SCREEN_HEIGHT, DAMAGE_SFX, PG_LASER_SFX
+from functions import draw_text
+from constants import SCREEN_WIDTH, DEBUG, SCREEN_HEIGHT, DAMAGE_SFX, PG_LASER_SFX, PRIMARY_ACCENT
 
 class Player(pg.sprite.Sprite):
-    def __init__(self, player_data):
+    def __init__(self, player_data, volume):
         super().__init__()
 
         #   Imagenes del jugador
@@ -26,8 +27,9 @@ class Player(pg.sprite.Sprite):
         self.rect = self.image.get_rect(center = self.location)
         self.is_looking_right = True
 
-        #   Control de sonidos
+        #   Control de audio
         self.laser_sfx = pg.mixer.Sound(PG_LASER_SFX)
+        self.volume = volume
 
         #   Valores del jugador
         self.move_x = player_data.get("coord_x")
@@ -98,23 +100,26 @@ class Player(pg.sprite.Sprite):
 
     #   Jugador recibe vida
     def extra_life(self):
-        self.life += 1
+        self.life += 50
     #   Jugador recibe danio
-    def get_damage(self, entity, sound):
+    def get_damage(self, entity, sound, screen, font):
         if entity.rect.colliderect(self.rect):
             self.life -= 2
             if self.life == 350:
-                sound.play(0)
+                draw_text(font, "2 HP", PRIMARY_ACCENT, screen, self.rect.top - 20, self.rect.y)
+                sound.play(0).set_volume(self.volume)
             elif self.life == 250:
-                sound.play(0)
+                draw_text(font, "1 HP", PRIMARY_ACCENT, screen, self.rect.top - 20, self.rect.y)
+                sound.play(0).set_volume(self.volume)
             elif self.life == 150:
-                sound.play(0)
+                draw_text(font, "0 HP", PRIMARY_ACCENT, screen, self.rect.top - 20, self.rect.y)
+                sound.play(0).set_volume(self.volume)
             elif self.life == 0:
                 self.is_alive = False
         print(self.life)
     #   El jugador dispara
     def attack(self):
-        self.laser_sfx.play()
+        self.laser_sfx.play().set_volume(self.volume)
         self.bullet_group.add(self.create_bullet())
     #   Crea una bala con el consturctor de Projectile
     def create_bullet(self):

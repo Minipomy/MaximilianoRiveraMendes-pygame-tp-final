@@ -1,28 +1,32 @@
 import pygame as pg
 import sys
+import re
 from Player import Player
 from Enemy import Enemy
 from Fruit import Fruit
 from Tile import Tile
 from Buttons import Buttons
 from functions import draw_text
+from DML import *
 from constants import *
 
 class Stage:
-    def __init__(self, stage_data, font, screen, size):
+    def __init__(self, stage_data, font, screen, size, volume):
         #   Decoradores generales
         self.stage = stage_data
         self.screen = screen
         self.size = size
         self.font = font
+        self.volume = volume
         #pg.font.init()
         self.background = self.stage.get("BG_img")
         self.image = pg.transform.scale(pg.image.load(self.background), self.size)
         self.clock = pg.time.Clock()
         self.delta_ms = self.clock.tick(FPS)
-        self.is_playing = True
-        self.is_paused = False
-        self.win = False
+        self.play = True
+        self.pause = False
+        self.winner = False
+        self.over = False
 
         #   Control de audio
         self.bg_sfx = pg.mixer.Sound(BG_SFX)
@@ -33,8 +37,10 @@ class Stage:
         self.win_sfx = pg.mixer.Sound(WIN_SFX)
         self.win_vocal_sfx = pg.mixer.Sound(WIN_VOCAL_SFX)
 
+
         #   Atributos de clase Enemigos, Jugador, Tiles y Frutas
-        self.player =  Player(self.stage.get("player")) 
+        self.countdown = 10
+        self.player =  Player(self.stage.get("player"), self.volume) 
         self.score = 0
         
         self.sprites = pg.sprite.Group()
@@ -45,57 +51,48 @@ class Stage:
         self.enemy_counter = self.stage.get("enemy_count")
         self.tile_counter = self.stage.get("tile_count")
         self.fruit_counter = self.stage.get("fruit_count")
-        self.add_sprite(self.player)        
-
-        if self.is_playing:
-            self.bg_sfx.play(-1)
+        self.add_sprite(self.player)
+        
+        #   Comprobamos estados del juego
+        if self.play:
+            self.bg_sfx.play(-1).set_volume(self.volume)
             self.generate_enemies(self.enemy_counter)
             self.generate_fruits(self.fruit_counter)
             self.generate_tiles(self.tile_counter)
 
+    #   <Sprites_ADD>
     def add_sprite(self, sprite):
         self.sprites.add(sprite) 
-
     def add_enemy(self, enemy):
         self.enemy.add(enemy) 
-        
     def add_tile(self, tile):
         self.tile.add(tile)
-    
     def add_fruit(self, fruit):
         self.fruit.add(fruit)
-
-    def draw_grid(self):
-        if DEBUG:
-            tile_size = 47
-            WHITE = (255, 255, 255)
-            for line in range(0,29):
-                pg.draw.line(self.screen, WHITE, (0, line * tile_size), (SCREEN_WIDTH, line * tile_size))
-                pg.draw.line(self.screen, WHITE, (line * tile_size, 0), (line * tile_size, SCREEN_HEIGHT))
-
+    #   </Sprites_ADD>
+    #   <Sprites_GEN>
     def generate_fruits(self, counter):
-        if len(self.fruit) == 0 and not self.win:
+        if len(self.fruit) == 0:
             for index in range(counter):
                 fruit = Fruit(self.stage.get("fruit"), self.stage.get("fruit_pos")[index])
                 self.add_sprite(fruit)
                 self.add_fruit(fruit)
-
     def generate_enemies(self, counter):
-        if len(self.enemy) == 0 and not self.win:
+        if len(self.enemy) == 0:
             for index in range(counter):
                 enemy = Enemy(self.stage.get("enemy"), self.stage.get("enemy_pos")[index])
                 self.add_sprite(enemy)
                 self.add_enemy(enemy)
-
     def generate_tiles(self, counter):
-        if len(self.tile) == 0 and not self.win:
+        if len(self.tile) == 0:
             for index in range(counter):
                 tile = Tile(self.stage.get("tile"), self.stage.get("tiles_pos")[index])
                 self.add_sprite(tile)
                 self.add_tile(tile)
-
+    #   </Sprites_GEN>
+    #   <Windows Setters>
     def set_pause(self):
-        while self.isPause:
+        while self.pause:
             MOUSE = pg.mouse.get_pos()
             MENU_TEXT = self.font.render(GAME_PAUSE_TEXT, True, PRIMARY_ACCENT)
             MENU_RECT = MENU_TEXT.get_rect(topleft=(20, 20))
@@ -112,16 +109,18 @@ class Stage:
                         sys.exit()
                     if event.type == pg.KEYDOWN:
                         if event.key == pg.K_p:
-                            self.is_pause = False
+                            self.pause = False
                     if event.type == pg.MOUSEBUTTONDOWN:
                         if RESUME_BUTTON.checkForInput(MOUSE):
-                            self.is_paused = False
+                            self.pause = False
                         if MAIN_MENU_BUTTON.checkForInput(MOUSE):
-                            self.is_playing = False
+                            self.pause = False
+                            self.over = False
+                            self.play=False
+                            self.bg_sfx.stop()
             pg.display.flip()
-
-    def are_ya_winning_son(self):
-        while self.win:
+    def set_winner(self):
+        while self.winner:
             self.screen.fill((0,0,0))
             draw_text(self.font, YOU_WIN, TEXT_COLOR, self.screen, SCREEN_WIDTH//2-150, SCREEN_HEIGHT//2 - 300)
             draw_text(self.font, f"Score: {self.score}", TEXT_COLOR, self.screen, SCREEN_WIDTH//2-180, SCREEN_HEIGHT//2)
@@ -133,10 +132,50 @@ class Stage:
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_SPACE:
                         self.bg_sfx.stop()
-                        self.is_playing = False
-                        self.win = False
+                        self.winner = False
+                        self.play = False
             pg.display.update()
-
+    def set_game_over(self):
+        while self.over:
+            self.screen.fill((0,0,0))
+            draw_text(self.font, YOU_LOOSE, TEXT_COLOR, self.screen, SCREEN_WIDTH//2-150, SCREEN_HEIGHT//2 - 300)
+            draw_text(self.font, f"Score: {self.score}", TEXT_COLOR, self.screen, SCREEN_WIDTH//2-180, SCREEN_HEIGHT//2)
+            draw_text(self.font, f"Press SPACE to return to retry", TEXT_COLOR, self.screen, SCREEN_WIDTH//2-600, SCREEN_HEIGHT//2 + 100)
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                    pg.exit()
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_SPACE:
+                        self.bg_sfx.stop()
+                        self.play = False
+                        self.restart_game()
+            pg.display.update()
+    def restart_game(self):
+        self.sprites.empty()
+        self.enemy.empty()
+        self.fruit.empty()
+        self.tile.empty()
+        self.player =  Player(self.stage.get("player"), self.volume) 
+        self.add_sprite(self.player)
+        self.generate_enemies(self.enemy_counter)
+        self.generate_fruits(self.fruit_counter)
+        self.generate_tiles(self.tile_counter)
+        self.score = 0
+        self.play = True
+        self.bg_sfx.play(-1).set_volume(self.volume)
+        self.stage_run()
+    def save_score(self):
+        nombre = input("Ingrese su nombre (solo 3 letras o números): ")
+        while not re.match(r'^[a-zA-Z0-9]{3}$', nombre):
+            print("El nombre debe tener exactamente 3 letras o números.")
+            nombre = input("Ingrese su nombre (solo 3 letras o números): ")
+        instruccion = "INSERT INTO jugadores (nombre, puntaje) VALUES (?,?)"
+        parametro = f'{nombre}, {self.score}'     
+        createTable()
+        insertRow(instruccion, parametro)
+    #   </Windows Setters>
+    #   <HANDLERS>
     def event_handler(self):
         for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -144,8 +183,9 @@ class Stage:
                     sys.exit()
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_p:
-                        self.is_paused = not self.is_paused
-        
+                        self.pause = True
+                        self.set_pause()
+
         #   Comprobamos si los enemigos colisionan con las balas de jugador
         for bullet in self.player.bullet_group:
             for enemy in self.enemy:
@@ -156,7 +196,7 @@ class Stage:
                         enemy.kill()
                         self.score += enemy.base_score_value
                         self.enemy_counter -= 1
-                        self.enemy_k_sfx.play()
+                        self.enemy_k_sfx.play().set_volume(self.volume)
             for tile in self.tile:
                 if bullet.rect.colliderect(tile.rect):
                     bullet.kill()
@@ -166,15 +206,16 @@ class Stage:
             if fruit.rect.colliderect(self.player):
                 fruit.kill()
                 self.player.extra_life()
-                self.collected_sfx.play()
+                self.collected_sfx.play().set_volume(self.volume)
 
         #   Comprobamos si el jugador colisiona con el enemigo
         for enemy in self.enemy:
             if enemy.rect.colliderect(self.player):
-                # now = pg.time.get_ticks()
-                self.player.get_damage(enemy, self.damage_sfx)
+                self.player.get_damage(enemy, self.damage_sfx, self.screen, self.font)
                 if not self.player.is_alive:
                     self.player.kill()
+                    self.over = True
+                    self.set_game_over()
 
         #   Comprobamos las colisiones del jugador con respecto a las plataformas
         for tile in self.tile:
@@ -193,32 +234,37 @@ class Stage:
                 if tile.rect.right - self.player.rect.left < 0:
                     self.player.rect.x, self.player.rect.y = self.player.rect.x, tile.rect.right 
 
-        #   Comprobamos si se completo el juego
-        if len(self.enemy) == 0 and not self.win:
-            self.win = True
-            self.win_sfx.play()
+        if len(self.enemy) == 0 and not self.winner:
+            self.win_sfx.play().set_volume(self.volume)
             pg.time.delay(200)
-            self.win_vocal_sfx.play()
-            self.are_ya_winning_son()
-
+            self.win_vocal_sfx.play().set_volume(self.volume)
+            self.winner = True
+            self.set_winner()
+        #   Finalizamos el juego cuando nos quedamos sin tiempo
+        elif self.countdown <= 0:
+            self.countdown = 0
+            self.over = True
+            self.set_game_over()
     def render_handler(self, ticks):
             #   Generamos el fondo de pantalla
             self.screen.blit(self.image, (0, 0))            
             #   Generamos contador de tiempo en stage
-            seconds = int((pg.time.get_ticks() - ticks)/1000)
-            draw_text(self.font, f"Time: {str(seconds)} ", PRIMARY_ACCENT, self.screen, 20, 20)
-            # draw_text(self.font, str(seconds),PRIMARY_ACCENT, self.screen, 200, 20)
-            draw_text(self.font, f"Score: {self.score}", PRIMARY_ACCENT, self.screen, 20, 60)
+            if not self.over:
+                seconds = int((pg.time.get_ticks() - ticks)/1000)
+                self.countdown -= self.delta_ms / 1000
+                draw_text(self.font, f"Time: {seconds} ", PRIMARY_ACCENT, self.screen, 20, 20)
+                draw_text(self.font, f"Countdown: {self.countdown:.0f}", PRIMARY_ACCENT, self.screen, 20, 100)
+                draw_text(self.font, f"Score: {self.score}", PRIMARY_ACCENT, self.screen, 20, 60)
             self.sprites.update(self.delta_ms)
-
     def elements_handler(self):
         #   Agregamos los sprites al stage
         self.sprites.draw(self.screen)
         self.player.bullet_group.draw(self.screen)
-
+    #   </HANDLERS>
+    #   <Game_RUN>
     def stage_run(self):
             start_ticks = pg.time.get_ticks()
-            while self.is_playing:
+            while self.play:
                 self.event_handler()
                 self.render_handler(start_ticks)
                 self.elements_handler()
@@ -226,3 +272,12 @@ class Stage:
                 self.draw_grid()
                 pg.display.flip()
                 self.clock.tick(FPS)
+    #   </Game_RUN>
+    ######################## DEBUG ONLY
+    def draw_grid(self):
+        if DEBUG:
+            tile_size = 47
+            WHITE = (255, 255, 255)
+            for line in range(0,29):
+                pg.draw.line(self.screen, WHITE, (0, line * tile_size), (SCREEN_WIDTH, line * tile_size))
+                pg.draw.line(self.screen, WHITE, (line * tile_size, 0), (line * tile_size, SCREEN_HEIGHT))

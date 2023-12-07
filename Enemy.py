@@ -36,6 +36,7 @@ class Enemy(pg.sprite.Sprite):
         self.image = self.actual_animation[self.initial_frame]
         self.rect = self.image.get_rect(center = self.location)
         self.is_looking_right = True
+        self.direction = 1
 
         if self.is_boss:
             self.life *= 2
@@ -113,13 +114,24 @@ class Enemy(pg.sprite.Sprite):
         self.player_move_time += delta_ms
         if self.player_move_time >= self.frame_rate:
             self.player_move_time = 0
-            self.rect.x += self.set_borders_limits()
-            self.rect.y += self.move_y
+            left_limit = 0
+            right_limits = SCREEN_WIDTH - self.rect.width
+
+            if self.rect.x <= left_limit:
+                self.direction = 1
+            elif self.rect.x >= right_limits:
+                self.direction = -1
+            self.rect.x += self.direction * self.speed_run
             # Parte relacionado a saltar
             if self.rect.y > SCREEN_HEIGHT:
                 self.rect.y += self.gravity
             if self.rect.y < SCREEN_HEIGHT - self.image.get_height():
-                self.rect.y += self.gravity
+                self.rect.y += self.gravity   
+        if self.direction == -1:
+            self.actual_animation = self.run_r
+        else:
+            self.actual_animation = self.run_l  
+
 
     #   Limitacion de FPS 
     def do_animation(self, delta_ms):
